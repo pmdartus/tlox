@@ -29,17 +29,46 @@ test('simple expression', () => {
     ]);
 });
 
-test('number', () => {
-    const scanner = new Scanner('1 10 -10 10.100 -10.100', runner);
-    const tokens = scanner.scanTokens();
-    matchTokens(tokens, [
-        new Token(TokenType.NUMBER, '1', 1, 1),
-        new Token(TokenType.NUMBER, '10', 10, 1),
-        new Token(TokenType.MINUS, '-', null, 1),
-        new Token(TokenType.NUMBER, '10', 10, 1),
-        new Token(TokenType.NUMBER, '10.100', 10.100, 1),
-        new Token(TokenType.MINUS, '-', null, 1),
-        new Token(TokenType.NUMBER, '10.100', 10.100, 1),
-        new Token(TokenType.EOF, '', null, 1),
-    ]);
+describe('number', () => {
+    test('positive', () => {
+        const scanner = new Scanner('1 100', runner);
+        const tokens = scanner.scanTokens();
+        matchTokens(tokens, [
+            new Token(TokenType.NUMBER, '1', 1, 1),
+            new Token(TokenType.NUMBER, '100', 100, 1),
+            new Token(TokenType.EOF, '', null, 1),
+        ]);
+    });
+
+    test('negative', () => {
+        const scanner = new Scanner('-1 -100', runner);
+        const tokens = scanner.scanTokens();
+        matchTokens(tokens, [
+            new Token(TokenType.MINUS, '-', null, 1),
+            new Token(TokenType.NUMBER, '1', 1, 1),
+            new Token(TokenType.MINUS, '-', null, 1),
+            new Token(TokenType.NUMBER, '100', 100, 1),
+            new Token(TokenType.EOF, '', null, 1),
+        ]);
+    });
+
+    test('float', () => {
+        const scanner = new Scanner('3.14', runner);
+        const tokens = scanner.scanTokens();
+        matchTokens(tokens, [
+            new Token(TokenType.NUMBER, '3.14', 3.14, 1),
+            new Token(TokenType.EOF, '', null, 1),
+        ]);
+    });
+});
+
+describe('string', () => {
+    test('simple', () => {
+        const scanner = new Scanner('"Hello world!"', runner);
+        const tokens = scanner.scanTokens();
+        matchTokens(tokens, [
+            new Token(TokenType.STRING, '"Hello world!"', 'Hello world!', 1),
+            new Token(TokenType.EOF, '', null, 1),
+        ]);
+    });
 });
