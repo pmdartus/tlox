@@ -3,14 +3,12 @@ import Scanner from '../scanner';
 import Token, { TokenType } from '../token';
 
 let runner: Runner;
-beforeEach(() => (
-    runner = new Runner()
-));
+beforeEach(() => (runner = new Runner()));
 
 function matchTokens(actual: Token[], expected: Token[]) {
     // console.log(actual, expected);
     expect(actual).toHaveLength(expected.length);
-    
+
     for (let i = 0; i < actual.length; i++) {
         // console.log(actual[i], expected[i]);
         expect(Token.equals(actual[i], expected[i])).toBe(true);
@@ -18,7 +16,7 @@ function matchTokens(actual: Token[], expected: Token[]) {
 }
 
 test('simple expression', () => {
-    const scanner = new Scanner('var a = b;', runner)
+    const scanner = new Scanner('var a = b;', runner);
     matchTokens(scanner.scanTokens(), [
         new Token(TokenType.VAR, 'var', null, 1),
         new Token(TokenType.IDENTIFIER, 'a', null, 1),
@@ -71,11 +69,14 @@ describe('string', () => {
 
 describe('comment', () => {
     test('simple comment', () => {
-        const scanner = new Scanner(`
+        const scanner = new Scanner(
+            `
             // Before
             print "Hello"
             // After
-        `, runner);
+        `,
+            runner,
+        );
         matchTokens(scanner.scanTokens(), [
             new Token(TokenType.PRINT, 'print', null, 3),
             new Token(TokenType.STRING, '"Hello"', 'Hello', 3),
@@ -84,12 +85,15 @@ describe('comment', () => {
     });
 
     test('multiline comment', () => {
-        const scanner = new Scanner(`
+        const scanner = new Scanner(
+            `
             /* 
                 Hello world
             */
             print "Hello"
-        `, runner);
+        `,
+            runner,
+        );
         matchTokens(scanner.scanTokens(), [
             new Token(TokenType.PRINT, 'print', null, 5),
             new Token(TokenType.STRING, '"Hello"', 'Hello', 5),

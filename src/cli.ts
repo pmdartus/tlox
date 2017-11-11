@@ -6,9 +6,9 @@ import Runner from './runner';
 const args = process.argv.slice(2);
 
 if (args.length > 1) {
-    console.log('Usage: jslox [script]')
+    console.log('Usage: jslox [script]');
 } else if (args.length === 1) {
-    runFile(args[0])
+    runFile(args[0]);
 } else {
     runPrompt();
 }
@@ -18,16 +18,13 @@ function runFile(file: string) {
     runner.run(fs.readFileSync(file, 'utf-8'));
 
     if (runner.hadError) {
-        process.exit()
+        process.exit();
     }
 }
 
 function runPrompt() {
     const runner = new Runner();
-    const lineReader = readline.createInterface(
-        process.stdin,
-        process.stdout
-    );
+    const lineReader = readline.createInterface(process.stdin, process.stdout);
 
     lineReader.prompt();
 
@@ -41,5 +38,5 @@ function runPrompt() {
     lineReader.on('close', () => {
         console.log('Bye!');
         process.exit(0);
-    })
+    });
 }

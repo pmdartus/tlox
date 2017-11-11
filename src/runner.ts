@@ -6,7 +6,7 @@ export default class Runner {
     run(source: string) {
         const scanner = new Scanner(source, this);
         const tokens = scanner.scanTokens();
-    
+
         for (let token of tokens) {
             console.log(String(token));
         }

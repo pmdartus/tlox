@@ -34,7 +34,7 @@ const KEYWORDS: Map<string, TokenType> = new Map([
 export default class Scanner {
     source: string;
     runner: Runner;
-    
+
     tokens: Token[] = [];
     start = 0;
     current = 0;
@@ -170,7 +170,11 @@ export default class Scanner {
                     }
                 } else if (this.match('*')) {
                     // A comment goes untile the end of the line
-                    while (this.peek() !== '*' && this.peekNext() !== '/' && !this.isAtEnd()) {
+                    while (
+                        this.peek() !== '*' &&
+                        this.peekNext() !== '/' &&
+                        !this.isAtEnd()
+                    ) {
                         if (this.peek() === '\n') {
                             this.line++;
                         }
@@ -179,7 +183,7 @@ export default class Scanner {
                     }
 
                     if (this.peek() !== '/') {
-                        // Discard closing */ 
+                        // Discard closing */
                         this.advance();
                         this.advance();
                     }
@@ -261,12 +265,12 @@ export default class Scanner {
     }
 
     private identifier() {
-        while(isAlphaNumeric(this.peek())) {
+        while (isAlphaNumeric(this.peek())) {
             this.advance();
         }
 
         const text = this.source.slice(this.start, this.current);
-        
+
         let type = KEYWORDS.get(text);
         if (type == null) {
             type = TokenType.IDENTIFIER;

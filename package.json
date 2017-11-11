@@ -5,12 +5,14 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "format": "prettier --tab-width 4 --single-quote true --trailing-comma all --write \"{src,script}/**/*.ts\""
   },
   "devDependencies": {
     "@types/jest": "^21.1.5",
     "@types/node": "^8.0.51",
     "jest": "^21.2.1",
+    "prettier": "^1.8.2",
     "ts-jest": "^21.2.1",
     "typescript": "^2.6.1"
   },
