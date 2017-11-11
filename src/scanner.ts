@@ -168,6 +168,21 @@ export default class Scanner {
                     while (this.peek() !== '\n' && !this.isAtEnd()) {
                         this.advance();
                     }
+                } else if (this.match('*')) {
+                    // A comment goes untile the end of the line
+                    while (this.peek() !== '*' && this.peekNext() !== '/' && !this.isAtEnd()) {
+                        if (this.peek() === '\n') {
+                            this.line++;
+                        }
+
+                        this.advance();
+                    }
+
+                    if (this.peek() !== '/') {
+                        // Discard closing */ 
+                        this.advance();
+                        this.advance();
+                    }
                 } else {
                     this.addToken(TokenType.SLASH);
                 }
