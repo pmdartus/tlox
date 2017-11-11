@@ -1,5 +1,5 @@
+import Runner from './runner';
 import Token, { TokenType } from './token';
-import { Runner } from './index';
 
 function isDigit(c: string) {
     return c >= '0' && c <= '9';
@@ -27,19 +27,22 @@ const KEYWORDS: Map<string, TokenType> = new Map([
     ['super', TokenType.SUPER],
     ['this', TokenType.THIS],
     ['true', TokenType.TRUE],
+    ['var', TokenType.VAR],
     ['while', TokenType.WHILE],
 ]);
 
 export default class Scanner {
     source: string;
+    runner: Runner;
+    
     tokens: Token[] = [];
-
     start = 0;
     current = 0;
     line = 1;
 
-    constructor(source: string) {
+    constructor(source: string, runner: Runner) {
         this.source = source;
+        this.runner = runner;
     }
 
     scanTokens() {
@@ -191,7 +194,7 @@ export default class Scanner {
                 } else if (isAlpha(c)) {
                     this.identifier();
                 } else {
-                    Runner.error(this.line, `Unexpected character ${c}`);
+                    this.runner.error(this.line, `Unexpected character ${c}`);
                 }
         }
     }
@@ -206,7 +209,7 @@ export default class Scanner {
         }
 
         if (this.isAtEnd()) {
-            Runner.error(this.line, 'Unterminated string.');
+            this.runner.error(this.line, 'Unterminated string.');
             return;
         }
 
@@ -239,7 +242,7 @@ export default class Scanner {
         const value = this.source.slice(this.start, this.current);
         const literal = isFloat ? parseFloat(value) : parseFloat(value);
 
-        this.addToken(TokenType.NUMBER, value);
+        this.addToken(TokenType.NUMBER, literal);
     }
 
     private identifier() {
