@@ -24,6 +24,8 @@ defineAst(
 
 function defineAst(outputDir, types) {
     let code = [
+        `/* /!\\ Genreated via "npm run genreate-ast" /!\\ */\n`,
+        `\n`,
         `import Token from './token';\n`,
         '\n',
         defineVisitor(types),
