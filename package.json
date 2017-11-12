@@ -6,6 +6,7 @@
   "scripts": {
     "generate-ast": "script/generate-ast.js src/ && npm run format",
     "build": "tsc",
+    "start": "node dist/cli",
     "test": "jest",
     "format": "prettier --tab-width 4 --single-quote true --trailing-comma all --write \"{src,script}/**/*.ts\""
   },
