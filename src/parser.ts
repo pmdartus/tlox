@@ -25,9 +25,22 @@ export default class Parser {
         }
     }
 
-    // expression → equality ;
+    // expression → coma ;
     private expression(): Expr {
         return this.equality();
+    }
+
+    // coma -> equality ( "," equality )* ;
+    private coma(): Expr {
+        let expr = this.equality();
+
+        while (this.match(TokenType.COMMA)) {
+            const operator = this.previous();
+            const right = this.equality();
+            expr = new Binary(expr, operator, right);
+        }
+
+        return expr;
     }
 
     // equality → comparison ( ( "!=" | "==" ) comparison )* ;
