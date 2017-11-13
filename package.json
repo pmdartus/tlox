@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "generate-ast": "script/generate-ast.js src/ && npm run format",
+    "clean": "rimraf dist",
     "build": "tsc",
     "start": "node dist/cli",
     "test": "jest",
@@ -15,6 +16,7 @@
     "@types/node": "^8.0.51",
     "jest": "^21.2.1",
     "prettier": "^1.8.2",
+    "rimraf": "^2.6.2",
     "ts-jest": "^21.2.1",
     "typescript": "^2.6.1"
   },
