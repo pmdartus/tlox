@@ -1,11 +1,15 @@
-import Scanner from './scanner';
-import Token, { TokenType } from './token';
 import Parser from './parser';
+import Scanner from './scanner';
 import AstPrinter from './ast-printer';
+import Token, { TokenType } from './token';
+import Interpreter, { RuntimeException } from './interpreter';
 
 
 export default class Runner {
     hadError = false;
+    hadRuntimeError = false;
+
+    interpreter = new Interpreter(this);
 
     run(source: string) {
         const scanner = new Scanner(source, this);
@@ -19,7 +23,7 @@ export default class Runner {
         }
 
         if (expr) {
-            console.log(new AstPrinter().print(expr));
+            this.interpreter.interpret(expr);
         }
     }
 
@@ -33,6 +37,11 @@ export default class Runner {
         } else {
             this.reportError(token.line, `at "${token.lexeme}"`, message);
         }
+    }
+
+    runtimeError(error: RuntimeException) {
+        console.error(`[line ${error.token.line}] ${error.message}`);
+        this.hadRuntimeError = true;
     }
 
     reportError(line: number, where: string, message: string) {
