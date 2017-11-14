@@ -54,7 +54,21 @@ export default class Interpreter implements ExprVisitor<any> {
 
         switch (expr.operator.type) {
             case TokenType.PLUS:
-                return left + right;
+                const areStrings =
+                    typeof left === 'string' && typeof right === 'string';
+                const areNumbers =
+                    typeof left === 'number' && typeof right === 'number';
+
+                if (areStrings) {
+                    return left + right;
+                } else if (areNumbers) {
+                    return left + right;
+                } else {
+                    throw new RuntimeException(
+                        expr.operator,
+                        'Operands must be 2 numbers',
+                    );
+                }
 
             case TokenType.MINUS:
                 this.checkNumberOperands(expr.operator, left, right);
