@@ -4,7 +4,6 @@ import AstPrinter from './ast-printer';
 import Token, { TokenType } from './token';
 import Interpreter, { RuntimeException } from './interpreter';
 
-
 export default class Runner {
     hadError = false;
     hadRuntimeError = false;

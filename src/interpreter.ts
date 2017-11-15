@@ -1,6 +1,13 @@
-import { ExprVisitor, Literal, Grouping, Expr, Unary, Binary } from './expr';
-import Token, { TokenType } from './token';
 import Runner from './runner';
+import Token, { TokenType } from './token';
+import {
+    ExprVisitor,
+    Literal,
+    Grouping,
+    Expr,
+    Unary,
+    Binary,
+} from './ast/expr';
 
 export class RuntimeException extends Error {
     token: Token;
@@ -54,21 +61,19 @@ export default class Interpreter implements ExprVisitor<any> {
 
         switch (expr.operator.type) {
             case TokenType.PLUS:
-                const areStrings =
-                    typeof left === 'string' && typeof right === 'string';
-                const areNumbers =
-                    typeof left === 'number' && typeof right === 'number';
-
-                if (areStrings) {
+                if (typeof left === 'string' || typeof right === 'string') {
+                    return String(left) + String(right);
+                } else if (
+                    typeof left === 'number' &&
+                    typeof right === 'number'
+                ) {
                     return left + right;
-                } else if (areNumbers) {
-                    return left + right;
-                } else {
-                    throw new RuntimeException(
-                        expr.operator,
-                        'Operands must be 2 numbers',
-                    );
                 }
+
+                throw new RuntimeException(
+                    expr.operator,
+                    'Operands must be 2 strings or numbers',
+                );
 
             case TokenType.MINUS:
                 this.checkNumberOperands(expr.operator, left, right);

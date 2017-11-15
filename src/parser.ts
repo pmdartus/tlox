@@ -1,6 +1,6 @@
 import Runner from './runner';
 import Token, { TokenType } from './token';
-import { Expr, Binary, Unary, Literal, Grouping } from './expr';
+import { Expr, Binary, Unary, Literal, Grouping } from './ast/expr';
 
 class ParserError extends Error {}
 
@@ -123,11 +123,11 @@ export default class Parser {
         } else if (this.match(TokenType.NIL)) {
             return new Literal(null);
         }
-        
+
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
             return new Literal(this.previous().literal);
         }
-        
+
         if (this.match(TokenType.LEFT_PAREN)) {
             let expr = this.expression();
 
@@ -140,7 +140,6 @@ export default class Parser {
         }
 
         throw this.error(this.peek(), 'Expected expression');
-
     }
 
     private match(...types: TokenType[]) {
@@ -189,7 +188,7 @@ export default class Parser {
     private synchronize() {
         this.advance();
 
-        while(!this.isAtEnd()) {
+        while (!this.isAtEnd()) {
             switch (this.peek().type) {
                 case TokenType.CLASS:
                 case TokenType.FUN:
