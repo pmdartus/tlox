@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+// @ts-check
 const fs = require('fs');
 const path = require('path');
 
@@ -14,24 +15,49 @@ const outputDir = args[0];
 
 defineAst(
     outputDir,
+    'Expr',
     new Map([
         ['Binary', 'left: Expr, operator: Token, right: Expr'],
         ['Grouping', 'expr: Expr'],
         ['Literal', 'value: any'],
         ['Unary', 'operation: Token, right:Expr'],
     ]),
+    [
+        `import Token from '../token'`
+    ]
 );
 
-function defineAst(outputDir, types) {
+defineAst(
+    outputDir,
+    'Stmt',
+    new Map([
+        ['Expression', 'expr: Expr'],
+        ['Print', 'expr: Expr'],
+    ]),
+    [
+        `import Token from '../token'`,
+        `import { Expr } from './expr'`
+    ]
+)
+
+/**
+ * Produce code for AST definition
+ * 
+ * @param {string} outputDir 
+ * @param {string} baseName
+ * @param {Map<string, string>} types
+ * @param {string[]} imports
+ */
+function defineAst(outputDir, baseName, types, imports) {
     let code = [
         `/* /!\\ Genreated via "npm run genreate-ast" /!\\ */\n`,
         `\n`,
-        `import Token from './token';\n`,
+        ...imports.map(i => i + '\n'),
         '\n',
-        defineVisitor(types),
+        defineVisitor(baseName, types),
         '\n',
-        'export abstract class Expr {\n',
-        '    abstract accept<V>(visitior: ExprVisitor<V>): V\n',
+        `export abstract class ${baseName} {\n`,
+        `    abstract accept<V>(visitior: ${baseName}Visitor<V>): V\n`,
         '}\n',
     ].join('');
 
@@ -39,7 +65,7 @@ function defineAst(outputDir, types) {
         const fields = properties.split(',').map(prop => prop.trim());
 
         code += '\n';
-        code += `export class ${type} extends Expr {\n`;
+        code += `export class ${type} extends ${baseName} {\n`;
 
         // Node fields
         for (let field of fields) {
@@ -56,14 +82,14 @@ function defineAst(outputDir, types) {
         code += '    }\n';
 
         // Visitor
-        code += `    accept<V>(visitor: ExprVisitor<V>): V{\n`
-        code += `        return visitor.visit${type}Expr(this);\n`
+        code += `    accept<V>(visitor: ${baseName}Visitor<V>): V{\n`
+        code += `        return visitor.visit${type}${baseName}(this);\n`
         code += `    }\n`;
 
         code += '}\n';
     }
 
-    const filePath = path.resolve(outputDir, 'expr.ts');
+    const filePath = path.resolve(outputDir, 'ast', `${baseName.toLowerCase()}.ts`);
     console.log(`Generating: ${filePath}`);
 
     fs.writeFileSync(
@@ -72,10 +98,16 @@ function defineAst(outputDir, types) {
     );
 }
 
-function defineVisitor(types) {
-    let code = `export interface ExprVisitor<V> {\n`
+/**
+ * Produce interface for AST visitor
+ * 
+ * @param {string} baseName
+ * @param {Map<string, string>} types
+ */
+function defineVisitor(baseName, types) {
+    let code = `export interface ${baseName}Visitor<V> {\n`
     for (let [type] of types.entries()) {
-        code += `    visit${type}Expr(expr: ${type}): V\n`
+        code += `    visit${type}${baseName}(${baseName.toLowerCase()}: ${type}): V\n`
     }
     code += `}\n`;
 

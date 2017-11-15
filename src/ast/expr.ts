@@ -1,6 +1,6 @@
 /* /!\ Genreated via "npm run genreate-ast" /!\ */
 
-import Token from './token';
+import Token from '../token';
 
 export interface ExprVisitor<V> {
     visitBinaryExpr(expr: Binary): V;
