@@ -8,6 +8,7 @@ import {
     Unary,
     Binary,
 } from './ast/expr';
+import { StmtVisitor, Expression, Print, Stmt } from './ast/stmt';
 
 export class RuntimeException extends Error {
     token: Token;
@@ -17,21 +18,35 @@ export class RuntimeException extends Error {
     }
 }
 
-export default class Interpreter implements ExprVisitor<any> {
+export default class Interpreter implements ExprVisitor<any>, StmtVisitor<void> {
     runner: Runner;
     constructor(runner: Runner) {
         this.runner = runner;
     }
 
-    interpret(expr: Expr) {
+    interpret(statements: Stmt[]) {
         try {
-            const value = this.evaluate(expr);
-            console.log(value);
+            for (let statement of statements) {
+                this.execute(statement);
+            }
         } catch (error) {
             if (error instanceof RuntimeException) {
                 this.runner.runtimeError(error);
             }
         }
+    }
+
+    private execute(statement: Stmt) {
+        statement.accept(this);
+    }
+
+    visitExpressionStmt(stmt: Expression) {
+        this.evaluate(stmt.expr);
+    }
+
+    visitPrintStmt(stmt: Print) {
+        const value = this.evaluate(stmt.expr);
+        console.log(value);
     }
 
     visitLiteralExpr(expr: Literal): any {

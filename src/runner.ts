@@ -15,15 +15,13 @@ export default class Runner {
         const tokens = scanner.scanTokens();
 
         const parser = new Parser(tokens, this);
-        const expr = parser.parse();
+        const statements = parser.parse();
 
         if (this.hadError) {
             return;
         }
 
-        if (expr) {
-            this.interpreter.interpret(expr);
-        }
+        this.interpreter.interpret(statements);
     }
 
     error(line: number, message: string) {

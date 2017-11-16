@@ -1,5 +1,7 @@
 import Runner from './runner';
 import Token, { TokenType } from './token';
+
+import { Stmt, Print, Expression } from './ast/stmt';
 import { Expr, Binary, Unary, Literal, Grouping } from './ast/expr';
 
 class ParserError extends Error {}
@@ -15,14 +17,33 @@ export default class Parser {
         this.runner = runner;
     }
 
-    parse() {
-        try {
-            return this.expression();
-        } catch (error) {
-            if (error instanceof ParserError) {
-                return null;
-            }
+    parse(): Stmt[] {
+        const statements = [];
+        
+        while(!this.isAtEnd()) {
+            statements.push(this.statement());
         }
+
+        return statements;
+    }
+
+    //statement → exprStmt | printStmt ;
+    private statement() {
+        return this.match(TokenType.PRINT) ?
+            this.printStatement() :
+            this.expressionStatement();
+    }
+
+    private printStatement() {
+        const expr = this.expression();
+        this.consume(TokenType.COMMA, 'Expected ";" at the end of the expression.');
+        return new Print(expr);
+    }
+
+    private expressionStatement() {
+        const expr = this.expression();
+        this.consume(TokenType.COMMA, 'Expected ";" at the end of the expression.');
+        return new Expression(expr);
     }
 
     // expression → coma ;
