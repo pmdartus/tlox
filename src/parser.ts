@@ -1,8 +1,8 @@
 import Runner from './runner';
 import Token, { TokenType } from './token';
 
-import { Stmt, Print, Expression } from './ast/stmt';
-import { Expr, Binary, Unary, Literal, Grouping } from './ast/expr';
+import { Stmt, Print, Expression, Var } from './ast/stmt';
+import { Expr, Binary, Unary, Literal, Grouping, Variable } from './ast/expr';
 
 class ParserError extends Error {}
 
@@ -19,30 +19,63 @@ export default class Parser {
 
     parse(): Stmt[] {
         const statements = [];
-        
-        while(!this.isAtEnd()) {
-            statements.push(this.statement());
+
+        while (!this.isAtEnd()) {
+            statements.push(this.declaration());
         }
 
         return statements;
     }
 
+    // declaration → varDecl | statement ;
+    private declaration() {
+        try {
+            return this.match(TokenType.VAR)
+                ? this.varDeclaration()
+                : this.statement();
+        } catch (error) {
+            if (error instanceof ParserError) {
+                this.synchronize();
+            }
+        }
+    }
+
+    private varDeclaration() {
+        const name = this.consume(
+            TokenType.IDENTIFIER,
+            'Expected a variable name',
+        );
+
+        let initializer = this.match(TokenType.EQUAL)
+            ? this.expression()
+            : new Literal(null);
+
+        this.consume(TokenType.SEMI, 'Expected ";" after variable declaration');
+        return new Var(name, initializer);
+    }
+
     //statement → exprStmt | printStmt ;
     private statement() {
-        return this.match(TokenType.PRINT) ?
-            this.printStatement() :
-            this.expressionStatement();
+        return this.match(TokenType.PRINT)
+            ? this.printStatement()
+            : this.expressionStatement();
     }
 
     private printStatement() {
         const expr = this.expression();
-        this.consume(TokenType.COMMA, 'Expected ";" at the end of the expression.');
+        this.consume(
+            TokenType.COMMA,
+            'Expected ";" at the end of the expression.',
+        );
         return new Print(expr);
     }
 
     private expressionStatement() {
         const expr = this.expression();
-        this.consume(TokenType.COMMA, 'Expected ";" at the end of the expression.');
+        this.consume(
+            TokenType.COMMA,
+            'Expected ";" at the end of the expression.',
+        );
         return new Expression(expr);
     }
 
@@ -135,7 +168,7 @@ export default class Parser {
         }
     }
 
-    // primary → NUMBER | STRING | "false" | "true" | "nil" | "(" expression ")" ;
+    // primary → NUMBER | STRING | "false" | "true" | "nil" | "(" expression ")" | INDENTIFIER ;
     private primary(): Expr {
         if (this.match(TokenType.FALSE)) {
             return new Literal(false);
@@ -158,6 +191,10 @@ export default class Parser {
             );
 
             return new Grouping(expr);
+        }
+
+        if (this.match(TokenType.IDENTIFIER)) {
+            return new Variable(this.previous());
         }
 
         throw this.error(this.peek(), 'Expected expression');

@@ -21,6 +21,7 @@ defineAst(
         ['Grouping', 'expr: Expr'],
         ['Literal', 'value: any'],
         ['Unary', 'operation: Token, right:Expr'],
+        ['Variable', 'name: Token']
     ]),
     [
         `import Token from '../token'`
@@ -33,6 +34,7 @@ defineAst(
     new Map([
         ['Expression', 'expr: Expr'],
         ['Print', 'expr: Expr'],
+        ['Var', 'name: Token, initializer: Expr']
     ]),
     [
         `import Token from '../token'`,

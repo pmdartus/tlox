@@ -18,7 +18,8 @@ export class RuntimeException extends Error {
     }
 }
 
-export default class Interpreter implements ExprVisitor<any>, StmtVisitor<void> {
+export default class Interpreter
+    implements ExprVisitor<any>, StmtVisitor<void> {
     runner: Runner;
     constructor(runner: Runner) {
         this.runner = runner;
