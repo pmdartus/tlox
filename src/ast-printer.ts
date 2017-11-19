@@ -6,11 +6,16 @@ import {
     Literal,
     Unary,
     Variable,
+    Assign,
 } from './ast/expr';
 
 export default class AstPrinter implements ExprVisitor<string> {
     print(expr: Expr): string {
         return expr.accept(this);
+    }
+
+    visitAssignExpr(expr: Assign) {
+        return this.parenthesize(`${expr.name.lexeme} =`, expr.value);
     }
 
     visitVariableExpr(expr: Variable): string {

@@ -1,8 +1,17 @@
 import Runner from './runner';
 import Token, { TokenType } from './token';
 
-import { Stmt, Print, Expression, Var } from './ast/stmt';
-import { Expr, Binary, Unary, Literal, Grouping, Variable } from './ast/expr';
+import { Stmt, Print, Expression, Var, Block } from './ast/stmt';
+import {
+    Expr,
+    Binary,
+    Unary,
+    Literal,
+    Grouping,
+    Variable,
+    Assign,
+} from './ast/expr';
+import { equal } from 'assert';
 
 class ParserError extends Error {}
 
@@ -57,17 +66,21 @@ export default class Parser {
         return new Var(name, initializer);
     }
 
-    //statement → exprStmt | printStmt ;
+    //statement → exprStmt | printStmt | block ;
     private statement() {
-        return this.match(TokenType.PRINT)
-            ? this.printStatement()
-            : this.expressionStatement();
+        if (this.match(TokenType.PRINT)) {
+            return this.printStatement();
+        } else if (this.match(TokenType.LEFT_BRACE)) {
+            return new Block(this.block());
+        } else {
+            return this.expressionStatement();
+        }
     }
 
     private printStatement() {
         const expr = this.expression();
         this.consume(
-            TokenType.COMMA,
+            TokenType.SEMI,
             'Expected ";" at the end of the expression.',
         );
         return new Print(expr);
@@ -76,15 +89,49 @@ export default class Parser {
     private expressionStatement() {
         const expr = this.expression();
         this.consume(
-            TokenType.COMMA,
+            TokenType.SEMI,
             'Expected ";" at the end of the expression.',
         );
         return new Expression(expr);
     }
 
-    // expression → coma ;
+    private block(): Stmt[] {
+        const statements = [];
+
+        while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+            const statement = this.declaration();
+
+            if (statement) {
+                statements.push(statement);
+            }
+        }
+
+        this.consume(TokenType.RIGHT_BRACE, 'Expected "}" after block.');
+        return statements;
+    }
+
+    // expression → assignment
     private expression(): Expr {
-        return this.equality();
+        return this.assignment();
+    }
+
+    // assignment -> identifier "=" assignment | equality ;
+    private assignment(): Expr {
+        const expr = this.equality();
+
+        if (this.match(TokenType.EQUAL)) {
+            const equals = this.previous();
+            const value = this.assignment();
+
+            if (expr instanceof Variable) {
+                const name = expr.name;
+                return new Assign(name, value);
+            }
+
+            this.error(equals, 'Invalid assignment target.');
+        }
+
+        return expr;
     }
 
     // coma -> equality ( "," equality )* ;

@@ -17,6 +17,7 @@ defineAst(
     outputDir,
     'Expr',
     new Map([
+        ['Assign', 'name: Token, value: Expr'],
         ['Binary', 'left: Expr, operator: Token, right: Expr'],
         ['Grouping', 'expr: Expr'],
         ['Literal', 'value: any'],
@@ -32,6 +33,7 @@ defineAst(
     outputDir,
     'Stmt',
     new Map([
+        ['Block', 'statements: Stmt[]'],
         ['Expression', 'expr: Expr'],
         ['Print', 'expr: Expr'],
         ['Var', 'name: Token, initializer: Expr']

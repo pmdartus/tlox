@@ -8,8 +8,9 @@ import {
     Unary,
     Binary,
     Variable,
+    Assign,
 } from './ast/expr';
-import { StmtVisitor, Expression, Print, Stmt, Var } from './ast/stmt';
+import { StmtVisitor, Expression, Print, Stmt, Var, Block } from './ast/stmt';
 import Environment from './environment';
 
 export class RuntimeException extends Error {
@@ -20,7 +21,8 @@ export class RuntimeException extends Error {
     }
 }
 
-export default class Interpreter implements ExprVisitor<any>, StmtVisitor<void> {
+export default class Interpreter
+    implements ExprVisitor<any>, StmtVisitor<void> {
     runner: Runner;
     evironment = new Environment();
 
@@ -64,6 +66,17 @@ export default class Interpreter implements ExprVisitor<any>, StmtVisitor<void> 
     visitPrintStmt(stmt: Print) {
         const value = this.evaluate(stmt.expr);
         console.log(value);
+    }
+
+    visitBlockStmt(stmt: Block) {
+        this.executeBlock(stmt, new Environment(this.evironment));
+    }
+
+    visitAssignExpr(expr: Assign): any {
+        const value = this.evaluate(expr.value);
+
+        this.evironment.assign(expr.name, value);
+        return value;
     }
 
     visitLiteralExpr(expr: Literal): any {
@@ -143,6 +156,20 @@ export default class Interpreter implements ExprVisitor<any>, StmtVisitor<void> 
         }
 
         return null;
+    }
+
+    private executeBlock(stmt: Block, environment: Environment) {
+        const previousEnv = this.evironment;
+
+        try {
+            this.evironment = environment;
+
+            for (let statement of stmt.statements) {
+                this.execute(statement);
+            }
+        } finally {
+            this.evironment = previousEnv;
+        }
     }
 
     private evaluate(expr: Expr): any {

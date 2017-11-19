@@ -3,6 +3,7 @@
 import Token from '../token';
 
 export interface ExprVisitor<V> {
+    visitAssignExpr(expr: Assign): V;
     visitBinaryExpr(expr: Binary): V;
     visitGroupingExpr(expr: Grouping): V;
     visitLiteralExpr(expr: Literal): V;
@@ -12,6 +13,19 @@ export interface ExprVisitor<V> {
 
 export abstract class Expr {
     abstract accept<V>(visitior: ExprVisitor<V>): V;
+}
+
+export class Assign extends Expr {
+    name: Token;
+    value: Expr;
+    constructor(name: Token, value: Expr) {
+        super();
+        this.name = name;
+        this.value = value;
+    }
+    accept<V>(visitor: ExprVisitor<V>): V {
+        return visitor.visitAssignExpr(this);
+    }
 }
 
 export class Binary extends Expr {
