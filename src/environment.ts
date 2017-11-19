@@ -18,12 +18,12 @@ export default class Environment {
             this.values.set(name.lexeme, value);
         } else if (this.enclosing) {
             this.enclosing.assign(name, value);
+        } else {
+            throw new RuntimeException(
+                name,
+                `Unefined variable for "${name.lexeme}".`,
+            );
         }
-
-        throw new RuntimeException(
-            name,
-            `Unefined variable for "${name.lexeme}".`,
-        );
     }
 
     get(name: Token): any {

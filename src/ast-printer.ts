@@ -7,6 +7,7 @@ import {
     Unary,
     Variable,
     Assign,
+    Logical,
 } from './ast/expr';
 
 export default class AstPrinter implements ExprVisitor<string> {
@@ -23,6 +24,10 @@ export default class AstPrinter implements ExprVisitor<string> {
     }
 
     visitBinaryExpr(expr: Binary): string {
+        return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
+    }
+
+    visitLogicalExpr(expr: Logical): string {
         return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
     }
 

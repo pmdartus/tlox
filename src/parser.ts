@@ -1,7 +1,7 @@
 import Runner from './runner';
 import Token, { TokenType } from './token';
 
-import { Stmt, Print, Expression, Var, Block, If } from './ast/stmt';
+import { Stmt, Print, Expression, Var, Block, If, While } from './ast/stmt';
 import {
     Expr,
     Binary,
@@ -67,7 +67,7 @@ export default class Parser {
         return new Var(name, initializer);
     }
 
-    //statement → exprStmt | printStmt | block | ifStmtm ;
+    //statement → exprStmt | printStmt | block | ifStmt | whileStmt ;
     private statement(): Stmt {
         if (this.match(TokenType.PRINT)) {
             return this.printStatement();
@@ -75,6 +75,8 @@ export default class Parser {
             return new Block(this.block());
         } else if (this.match(TokenType.IF)) {
             return this.ifStatement();
+        } else if (this.match(TokenType.WHILE)) {
+            return this.whileStatement();
         } else {
             return this.expressionStatement();
         }
@@ -93,6 +95,17 @@ export default class Parser {
         }
 
         return new If(condition, thenBranch, elseBranch);
+    }
+
+    // whileStmt -> "while" "(" condition ")" statement ;
+    private whileStatement() {
+        this.consume(TokenType.LEFT_PAREN, 'Expected "(" after while.');
+        const condition = this.expression();
+        this.consume(TokenType.RIGHT_PAREN, 'Expected ")" after while condition.');
+
+        const body = this.statement();
+
+        return new While(condition, body);
     }
 
     private printStatement() {
@@ -153,7 +166,7 @@ export default class Parser {
     }
 
     // logic_or -> logic_and ( "||" logic_and )*
-    or() {
+    private or() {
         let expr = this.and();
 
         while (this.match(TokenType.OR) && !this.isAtEnd()) {
@@ -166,9 +179,9 @@ export default class Parser {
     }
 
     // logic_and -> equality ( "&&" equality )*
-    and() {
+    private and() {
         let expr = this.equality();
-        
+
         while (this.match(TokenType.AND) && !this.isAtEnd()) {
             const operator = this.previous();
             const right = this.and();

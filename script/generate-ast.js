@@ -37,6 +37,7 @@ defineAst(
         ['Block', 'statements: Stmt[]'],
         ['Expression', 'expr: Expr'],
         ['If', 'condition: Expr, thenBranch: Stmt, elseBranch: Stmt | undefined'],
+        ['While', 'condition: Expr, body: Stmt'],
         ['Print', 'expr: Expr'],
         ['Var', 'name: Token, initializer: Expr']
     ]),

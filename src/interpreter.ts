@@ -19,6 +19,7 @@ import {
     Var,
     Block,
     If,
+    While,
 } from './ast/stmt';
 import Environment from './environment';
 
@@ -86,6 +87,12 @@ export default class Interpreter
             this.execute(stmt.thenBranch);
         } else if (stmt.elseBranch) {
             this.execute(stmt.elseBranch);
+        }
+    }
+
+    visitWhileStmt(stmt: While) {
+        while (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.body);
         }
     }
 
