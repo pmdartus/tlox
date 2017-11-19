@@ -7,8 +7,10 @@ import {
     Expr,
     Unary,
     Binary,
+    Variable,
 } from './ast/expr';
-import { StmtVisitor, Expression, Print, Stmt } from './ast/stmt';
+import { StmtVisitor, Expression, Print, Stmt, Var } from './ast/stmt';
+import Environment from './environment';
 
 export class RuntimeException extends Error {
     token: Token;
@@ -18,9 +20,10 @@ export class RuntimeException extends Error {
     }
 }
 
-export default class Interpreter
-    implements ExprVisitor<any>, StmtVisitor<void> {
+export default class Interpreter implements ExprVisitor<any>, StmtVisitor<void> {
     runner: Runner;
+    evironment = new Environment();
+
     constructor(runner: Runner) {
         this.runner = runner;
     }
@@ -39,6 +42,19 @@ export default class Interpreter
 
     private execute(statement: Stmt) {
         statement.accept(this);
+    }
+
+    visitVarStmt(stmt: Var) {
+        let value: any = null;
+        if (stmt.initializer != null) {
+            value = this.evaluate(stmt.initializer);
+        }
+
+        this.evironment.define(stmt.name.lexeme, value);
+    }
+
+    visitVariableExpr(expr: Variable) {
+        return this.evironment.get(expr.name);
     }
 
     visitExpressionStmt(stmt: Expression) {

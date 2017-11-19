@@ -5,11 +5,16 @@ import {
     Grouping,
     Literal,
     Unary,
+    Variable,
 } from './ast/expr';
 
 export default class AstPrinter implements ExprVisitor<string> {
     print(expr: Expr): string {
         return expr.accept(this);
+    }
+
+    visitVariableExpr(expr: Variable): string {
+        return expr.name.lexeme;
     }
 
     visitBinaryExpr(expr: Binary): string {

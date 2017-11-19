@@ -21,7 +21,10 @@ export default class Parser {
         const statements = [];
 
         while (!this.isAtEnd()) {
-            statements.push(this.declaration());
+            const statement = this.declaration();
+            if (statement) {
+                statements.push(statement);
+            }
         }
 
         return statements;
