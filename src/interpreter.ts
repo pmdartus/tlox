@@ -10,7 +10,7 @@ import {
     Variable,
     Assign,
 } from './ast/expr';
-import { StmtVisitor, Expression, Print, Stmt, Var, Block } from './ast/stmt';
+import { StmtVisitor, Expression, Print, Stmt, Var, Block, If } from './ast/stmt';
 import Environment from './environment';
 
 export class RuntimeException extends Error {
@@ -70,6 +70,14 @@ export default class Interpreter
 
     visitBlockStmt(stmt: Block) {
         this.executeBlock(stmt, new Environment(this.evironment));
+    }
+
+    visitIfStmt(stmt: If) {
+        if (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.thenBranch);
+        } else if (stmt.elseBranch) {
+            this.execute(stmt.elseBranch);
+        }
     }
 
     visitAssignExpr(expr: Assign): any {

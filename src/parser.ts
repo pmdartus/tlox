@@ -1,7 +1,7 @@
 import Runner from './runner';
 import Token, { TokenType } from './token';
 
-import { Stmt, Print, Expression, Var, Block } from './ast/stmt';
+import { Stmt, Print, Expression, Var, Block, If } from './ast/stmt';
 import {
     Expr,
     Binary,
@@ -66,15 +66,32 @@ export default class Parser {
         return new Var(name, initializer);
     }
 
-    //statement → exprStmt | printStmt | block ;
-    private statement() {
+    //statement → exprStmt | printStmt | block | ifStmtm ;
+    private statement(): Stmt {
         if (this.match(TokenType.PRINT)) {
             return this.printStatement();
         } else if (this.match(TokenType.LEFT_BRACE)) {
             return new Block(this.block());
+        } else if (this.match(TokenType.IF)) {
+            return this.ifStatement();
         } else {
             return this.expressionStatement();
         }
+    }
+
+    // ifStmt → "if" "(" expression ")" statement ( "else" statement )? ;
+    private ifStatement() {
+        this.consume(TokenType.LEFT_PAREN, 'Expected "(" after "if".');
+        const condition = this.expression();
+        this.consume(TokenType.RIGHT_PAREN, 'Expected ")" after if condition.');
+
+        const thenBranch = this.statement();
+        let elseBranch;
+        if (this.match(TokenType.ELSE)) {
+            elseBranch = this.statement();
+        }
+
+        return new If(condition, thenBranch, elseBranch);
     }
 
     private printStatement() {

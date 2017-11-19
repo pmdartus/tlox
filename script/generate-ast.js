@@ -35,6 +35,7 @@ defineAst(
     new Map([
         ['Block', 'statements: Stmt[]'],
         ['Expression', 'expr: Expr'],
+        ['If', 'condition: Expr, thenBranch: Stmt, elseBranch: Stmt | undefined'],
         ['Print', 'expr: Expr'],
         ['Var', 'name: Token, initializer: Expr']
     ]),

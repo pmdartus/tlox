@@ -1,0 +1,18 @@
+if (true) {
+    print "I am true";
+}
+
+var cond = true;
+if (cond) {
+    print "I am also true";
+}
+
+if (false) {
+    print "Should not print";
+} else {
+    print "Should print else";
+}
+
+if (1) {
+    print "Should print because truthy";
+}

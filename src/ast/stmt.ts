@@ -6,6 +6,7 @@ import { Expr } from './expr';
 export interface StmtVisitor<V> {
     visitBlockStmt(stmt: Block): V;
     visitExpressionStmt(stmt: Expression): V;
+    visitIfStmt(stmt: If): V;
     visitPrintStmt(stmt: Print): V;
     visitVarStmt(stmt: Var): V;
 }
@@ -33,6 +34,25 @@ export class Expression extends Stmt {
     }
     accept<V>(visitor: StmtVisitor<V>): V {
         return visitor.visitExpressionStmt(this);
+    }
+}
+
+export class If extends Stmt {
+    condition: Expr;
+    thenBranch: Stmt;
+    elseBranch: Stmt | undefined;
+    constructor(
+        condition: Expr,
+        thenBranch: Stmt,
+        elseBranch: Stmt | undefined,
+    ) {
+        super();
+        this.condition = condition;
+        this.thenBranch = thenBranch;
+        this.elseBranch = elseBranch;
+    }
+    accept<V>(visitor: StmtVisitor<V>): V {
+        return visitor.visitIfStmt(this);
     }
 }
 
