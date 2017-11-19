@@ -38,6 +38,7 @@ defineAst(
         ['Expression', 'expr: Expr'],
         ['If', 'condition: Expr, thenBranch: Stmt, elseBranch: Stmt | undefined'],
         ['While', 'condition: Expr, body: Stmt'],
+        ['Break', ''],
         ['Print', 'expr: Expr'],
         ['Var', 'name: Token, initializer: Expr']
     ]),
@@ -69,7 +70,9 @@ function defineAst(outputDir, baseName, types, imports) {
     ].join('');
 
     for (let [type, properties] of types.entries()) {
-        const fields = properties.split(',').map(prop => prop.trim());
+        const fields = properties.split(',')
+            .map(prop => prop.trim())
+            .filter(f => f.length);
 
         code += '\n';
         code += `export class ${type} extends ${baseName} {\n`;

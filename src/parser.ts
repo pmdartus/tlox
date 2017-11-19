@@ -1,7 +1,16 @@
 import Runner from './runner';
 import Token, { TokenType } from './token';
 
-import { Stmt, Print, Expression, Var, Block, If, While } from './ast/stmt';
+import {
+    Stmt,
+    Print,
+    Expression,
+    Var,
+    Block,
+    If,
+    While,
+    Break,
+} from './ast/stmt';
 import {
     Expr,
     Binary,
@@ -21,6 +30,7 @@ export default class Parser {
 
     tokens: Token[];
     current = 0;
+    loopDepth = 0;
 
     constructor(tokens: Token[], runner: Runner) {
         this.tokens = tokens;
@@ -67,7 +77,7 @@ export default class Parser {
         return new Var(name, initializer);
     }
 
-    //statement → exprStmt | printStmt | block | ifStmt | whileStmt  | forStmt;
+    //statement → exprStmt | printStmt | block | ifStmt | whileStmt  | forStmt | breakStmt;
     private statement(): Stmt {
         if (this.match(TokenType.PRINT)) {
             return this.printStatement();
@@ -79,6 +89,8 @@ export default class Parser {
             return this.whileStatement();
         } else if (this.match(TokenType.FOR)) {
             return this.forStatement();
+        } else if (this.match(TokenType.BREAK)) {
+            return this.breakStatement();
         } else {
             return this.expressionStatement();
         }
@@ -103,11 +115,19 @@ export default class Parser {
     private whileStatement() {
         this.consume(TokenType.LEFT_PAREN, 'Expected "(" after "while".');
         const condition = this.expression();
-        this.consume(TokenType.RIGHT_PAREN, 'Expected ")" after while condition.');
+        this.consume(
+            TokenType.RIGHT_PAREN,
+            'Expected ")" after while condition.',
+        );
 
-        const body = this.statement();
-
-        return new While(condition, body);
+        try {
+            this.loopDepth++;
+            const body = this.statement();
+    
+            return new While(condition, body);
+        } finally {
+            this.loopDepth--;
+        }
     }
 
     // forStmt -> "for" "(" (varDecl | exprStmt | ";") expr? ";" expr?) statement ;
@@ -139,34 +159,46 @@ export default class Parser {
         }
         this.consume(TokenType.RIGHT_PAREN, 'Expected ")" after for clauses.');
 
-        // Get body
-        let body = this.statement();
+        try {
+            this.loopDepth++;
 
-        // If the increment is defined, add it at the end of the body block
-        if (increment) {
-            body = new Block([
-                body,
-                new Expression(increment),
-            ])
+            // Get body
+            let body = this.statement();
+
+            // If the increment is defined, add it at the end of the body block
+            if (increment) {
+                body = new Block([body, new Expression(increment)]);
+            }
+
+            // If no condition is defined, then set it to true
+            if (!condition) {
+                condition = new Literal(true);
+            }
+            body = new While(condition, body);
+
+            // If an intializer is defined the add it before the while loop execution
+            if (initializer) {
+                body = new Block([initializer, body]);
+            }
+
+            return body;
+        } finally {
+            this.loopDepth--;
         }
-
-        // If no condition is defined, then set it to true
-        if (!condition) {
-            condition = new Literal(true);
-        }
-        body = new While(condition, body);
-
-        // If an intializer is defined the add it before the while loop execution
-        if (initializer) {
-            body = new Block([
-                initializer,
-                body
-            ]);
-        }
-
-        return body;
+        
     }
 
+    // breakStmt -> "break" ";" ;
+    private breakStatement() {
+        if (this.loopDepth <= 0) {
+            this.error(this.previous(), 'Must be inside a loop to use "break".');
+        }
+
+        this.consume(TokenType.SEMI, 'Expected ";" after "break".');
+        return new Break();
+    }
+
+    // printStmt -> "print" expr ";" ;
     private printStatement() {
         const expr = this.expression();
         this.consume(
@@ -176,6 +208,7 @@ export default class Parser {
         return new Print(expr);
     }
 
+    // exprStmt -> expression ";"
     private expressionStatement() {
         const expr = this.expression();
         this.consume(

@@ -31,6 +31,8 @@ export class RuntimeException extends Error {
     }
 }
 
+class BreakException extends Error {}
+
 export default class Interpreter
     implements ExprVisitor<any>, StmtVisitor<void> {
     runner: Runner;
@@ -91,9 +93,20 @@ export default class Interpreter
     }
 
     visitWhileStmt(stmt: While) {
-        while (this.isTruthy(this.evaluate(stmt.condition))) {
-            this.execute(stmt.body);
+        try {
+            while (this.isTruthy(this.evaluate(stmt.condition))) {
+                this.execute(stmt.body);
+            }
+        } catch (error) {
+            if (error instanceof BreakException) {
+                return;
+            }
+            throw error;
         }
+    }
+
+    visitBreakStmt() {
+        throw new BreakException();
     }
 
     visitLogicalExpr(expr: Logical) {
