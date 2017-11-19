@@ -10,6 +10,7 @@ import {
     Grouping,
     Variable,
     Assign,
+    Logical,
 } from './ast/expr';
 import { equal } from 'assert';
 
@@ -132,9 +133,9 @@ export default class Parser {
         return this.assignment();
     }
 
-    // assignment -> identifier "=" assignment | equality ;
+    // assignment -> identifier "=" assignment | logic_or ;
     private assignment(): Expr {
-        const expr = this.equality();
+        const expr = this.or();
 
         if (this.match(TokenType.EQUAL)) {
             const equals = this.previous();
@@ -146,6 +147,32 @@ export default class Parser {
             }
 
             this.error(equals, 'Invalid assignment target.');
+        }
+
+        return expr;
+    }
+
+    // logic_or -> logic_and ( "||" logic_and )*
+    or() {
+        let expr = this.and();
+
+        while (this.match(TokenType.OR) && !this.isAtEnd()) {
+            const operator = this.previous();
+            const right = this.and();
+            expr = new Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    // logic_and -> equality ( "&&" equality )*
+    and() {
+        let expr = this.equality();
+        
+        while (this.match(TokenType.AND) && !this.isAtEnd()) {
+            const operator = this.previous();
+            const right = this.and();
+            expr = new Logical(expr, operator, right);
         }
 
         return expr;

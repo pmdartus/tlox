@@ -9,8 +9,17 @@ import {
     Binary,
     Variable,
     Assign,
+    Logical,
 } from './ast/expr';
-import { StmtVisitor, Expression, Print, Stmt, Var, Block, If } from './ast/stmt';
+import {
+    StmtVisitor,
+    Expression,
+    Print,
+    Stmt,
+    Var,
+    Block,
+    If,
+} from './ast/stmt';
 import Environment from './environment';
 
 export class RuntimeException extends Error {
@@ -78,6 +87,22 @@ export default class Interpreter
         } else if (stmt.elseBranch) {
             this.execute(stmt.elseBranch);
         }
+    }
+
+    visitLogicalExpr(expr: Logical) {
+        const left = this.evaluate(expr.left);
+
+        if (expr.operator.type === TokenType.OR) {
+            if (this.isTruthy(left)) {
+                return left;
+            }
+        } else {
+            if (!this.isTruthy(left)) {
+                return left;
+            }
+        }
+
+        return this.evaluate(expr.right);
     }
 
     visitAssignExpr(expr: Assign): any {
