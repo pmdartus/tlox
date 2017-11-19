@@ -67,7 +67,7 @@ export default class Parser {
         return new Var(name, initializer);
     }
 
-    //statement → exprStmt | printStmt | block | ifStmt | whileStmt ;
+    //statement → exprStmt | printStmt | block | ifStmt | whileStmt  | forStmt;
     private statement(): Stmt {
         if (this.match(TokenType.PRINT)) {
             return this.printStatement();
@@ -77,6 +77,8 @@ export default class Parser {
             return this.ifStatement();
         } else if (this.match(TokenType.WHILE)) {
             return this.whileStatement();
+        } else if (this.match(TokenType.FOR)) {
+            return this.forStatement();
         } else {
             return this.expressionStatement();
         }
@@ -99,13 +101,70 @@ export default class Parser {
 
     // whileStmt -> "while" "(" condition ")" statement ;
     private whileStatement() {
-        this.consume(TokenType.LEFT_PAREN, 'Expected "(" after while.');
+        this.consume(TokenType.LEFT_PAREN, 'Expected "(" after "while".');
         const condition = this.expression();
         this.consume(TokenType.RIGHT_PAREN, 'Expected ")" after while condition.');
 
         const body = this.statement();
 
         return new While(condition, body);
+    }
+
+    // forStmt -> "for" "(" (varDecl | exprStmt | ";") expr? ";" expr?) statement ;
+    // For loop is implemented by desugaring it to a while loop
+    private forStatement() {
+        this.consume(TokenType.LEFT_PAREN, 'Expeceted "(" after "for".');
+
+        // Get initializer
+        let initializer;
+        if (this.match(TokenType.SEMI)) {
+            initializer = undefined;
+        } else if (this.match(TokenType.VAR)) {
+            initializer = this.varDeclaration();
+        } else {
+            initializer = this.expressionStatement();
+        }
+
+        // Get condition
+        let condition;
+        if (!this.check(TokenType.SEMI)) {
+            condition = this.expression();
+        }
+        this.consume(TokenType.SEMI, 'Expected ";" after for condition.');
+
+        // Get increment
+        let increment;
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            increment = this.expression();
+        }
+        this.consume(TokenType.RIGHT_PAREN, 'Expected ")" after for clauses.');
+
+        // Get body
+        let body = this.statement();
+
+        // If the increment is defined, add it at the end of the body block
+        if (increment) {
+            body = new Block([
+                body,
+                new Expression(increment),
+            ])
+        }
+
+        // If no condition is defined, then set it to true
+        if (!condition) {
+            condition = new Literal(true);
+        }
+        body = new While(condition, body);
+
+        // If an intializer is defined the add it before the while loop execution
+        if (initializer) {
+            body = new Block([
+                initializer,
+                body
+            ]);
+        }
+
+        return body;
     }
 
     private printStatement() {
