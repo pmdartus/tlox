@@ -30,6 +30,7 @@ const KEYWORDS: Map<string, TokenType> = new Map([
     ['var', TokenType.VAR],
     ['while', TokenType.WHILE],
     ['break', TokenType.BREAK],
+    ['fun', TokenType.FUN],
 ]);
 
 export default class Scanner {

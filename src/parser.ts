@@ -10,6 +10,7 @@ import {
     If,
     While,
     Break,
+    Function,
 } from './ast/stmt';
 import {
     Expr,
@@ -51,12 +52,16 @@ export default class Parser {
         return statements;
     }
 
-    // declaration → varDecl | statement ;
+    // declaration → funDecl | varDecl | statement ;
     private declaration() {
         try {
-            return this.match(TokenType.VAR)
-                ? this.varDeclaration()
-                : this.statement();
+            if (this.match(TokenType.FUN)) {
+                return this.function('function');
+            } else if (this.match(TokenType.VAR)) {
+                return this.varDeclaration();
+            } else {
+                return this.statement();
+            }
         } catch (error) {
             if (error instanceof ParserError) {
                 this.synchronize();
@@ -64,6 +69,44 @@ export default class Parser {
         }
     }
 
+    // funDecl -> "fun" function
+    // function -> IDENTIFIER "(" parameters? ")" block
+    private function(kind: string) {
+        const name = this.consume(
+            TokenType.IDENTIFIER,
+            `Expected ${kind} name.`,
+        );
+
+        this.consume(TokenType.LEFT_PAREN, `Expected "(" after ${kind} name.`);
+
+        const parameters = [];
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            do {
+                if (parameters.length >= 8) {
+                    this.error(
+                        this.peek(),
+                        'Cannot have more than 8 parameters',
+                    );
+                }
+
+                parameters.push(
+                    this.consume(
+                        TokenType.IDENTIFIER,
+                        'Expected parameter name.',
+                    ),
+                );
+            } while (this.match(TokenType.COMMA));
+        }
+
+        this.consume(TokenType.RIGHT_PAREN, 'Expected ")" after parameters.');
+        this.consume(TokenType.LEFT_BRACE, `Expected "{" before ${kind} body.`);
+
+        const body = this.block();
+
+        return new Function(name, parameters, body);
+    }
+
+    // varDecl -> IDENTIFIER ("=" expression)? ";" ;
     private varDeclaration() {
         const name = this.consume(
             TokenType.IDENTIFIER,
@@ -78,7 +121,7 @@ export default class Parser {
         return new Var(name, initializer);
     }
 
-    //statement → exprStmt | printStmt | block | ifStmt | whileStmt  | forStmt | breakStmt;
+    //statement → exprStmt | printStmt | block | ifStmt | whileStmt  | forStmt | breakStmt ;
     private statement(): Stmt {
         if (this.match(TokenType.PRINT)) {
             return this.printStatement();
@@ -221,6 +264,7 @@ export default class Parser {
         return new Expression(expr);
     }
 
+    // block -> (declaration)* "}" ;
     private block(): Stmt[] {
         const statements = [];
 

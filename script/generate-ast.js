@@ -41,7 +41,8 @@ defineAst(
         ['While', 'condition: Expr, body: Stmt'],
         ['Break', ''],
         ['Print', 'expr: Expr'],
-        ['Var', 'name: Token, initializer: Expr']
+        ['Var', 'name: Token, initializer: Expr'],
+        ['Function', 'name: Token, parameter: Token[], body: Stmt[]']
     ]),
     [
         `import Token from '../token'`,

@@ -21,9 +21,10 @@ import {
     Block,
     If,
     While,
+    Function,
 } from './ast/stmt';
 import Environment from './environment';
-import { Callable } from './callable';
+import { LoxCallable, LoxFunction } from './callable';
 
 export class RuntimeException extends Error {
     token: Token;
@@ -47,7 +48,7 @@ export default class Interpreter
 
         this.globals.define(
             'clock',
-            new class Clock extends Callable {
+            new class Clock extends LoxCallable {
                 arity = 0;
                 call() {
                     return Date.now();
@@ -70,6 +71,11 @@ export default class Interpreter
 
     private execute(statement: Stmt) {
         statement.accept(this);
+    }
+
+    visitFunctionStmt(stmt: Function) {
+        const fn = new LoxFunction(stmt);
+        this.evironment.define(stmt.name.lexeme, fn);
     }
 
     visitVarStmt(stmt: Var) {
@@ -168,9 +174,9 @@ export default class Interpreter
     }
 
     visitCallExpr(expr: Call): any {
-        const fn = this.evaluate(expr.callee) as Callable;
+        const fn = this.evaluate(expr.callee) as LoxCallable;
 
-        if (!(fn instanceof Callable)) {
+        if (!(fn instanceof LoxCallable)) {
             throw new RuntimeException(
                 expr.paren,
                 'Can only call function and class methods.',
@@ -247,7 +253,7 @@ export default class Interpreter
         return null;
     }
 
-    private executeBlock(stmt: Block, environment: Environment) {
+    executeBlock(stmt: Block, environment: Environment) {
         const previousEnv = this.evironment;
 
         try {
@@ -261,7 +267,7 @@ export default class Interpreter
         }
     }
 
-    private evaluate(expr: Expr): any {
+    evaluate(expr: Expr): any {
         return expr.accept(this);
     }
 

@@ -1,0 +1,5 @@
+fun sayHi(first, last) {
+    print "Hello " + first + " " + last + ", nice to meet you";
+}
+
+sayHi("John", "Doe");

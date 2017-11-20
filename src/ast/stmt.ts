@@ -11,6 +11,7 @@ export interface StmtVisitor<V> {
     visitBreakStmt(stmt: Break): V;
     visitPrintStmt(stmt: Print): V;
     visitVarStmt(stmt: Var): V;
+    visitFunctionStmt(stmt: Function): V;
 }
 
 export abstract class Stmt {
@@ -101,5 +102,20 @@ export class Var extends Stmt {
     }
     accept<V>(visitor: StmtVisitor<V>): V {
         return visitor.visitVarStmt(this);
+    }
+}
+
+export class Function extends Stmt {
+    name: Token;
+    parameter: Token[];
+    body: Stmt[];
+    constructor(name: Token, parameter: Token[], body: Stmt[]) {
+        super();
+        this.name = name;
+        this.parameter = parameter;
+        this.body = body;
+    }
+    accept<V>(visitor: StmtVisitor<V>): V {
+        return visitor.visitFunctionStmt(this);
     }
 }
