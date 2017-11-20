@@ -10,6 +10,7 @@ import {
     Variable,
     Assign,
     Logical,
+    Call,
 } from './ast/expr';
 import {
     StmtVisitor,
@@ -22,6 +23,7 @@ import {
     While,
 } from './ast/stmt';
 import Environment from './environment';
+import { Callable } from './callable';
 
 export class RuntimeException extends Error {
     token: Token;
@@ -36,10 +38,22 @@ class BreakException extends Error {}
 export default class Interpreter
     implements ExprVisitor<any>, StmtVisitor<void> {
     runner: Runner;
-    evironment = new Environment();
+
+    readonly globals = new Environment();
+    private evironment = this.globals;
 
     constructor(runner: Runner) {
         this.runner = runner;
+
+        this.globals.define(
+            'clock',
+            new class Clock extends Callable {
+                arity = 0;
+                call() {
+                    return Date.now();
+                }
+            }(),
+        );
     }
 
     interpret(statements: Stmt[]) {
@@ -151,6 +165,28 @@ export default class Interpreter
         }
 
         return null;
+    }
+
+    visitCallExpr(expr: Call): any {
+        const fn = this.evaluate(expr.callee) as Callable;
+
+        if (!(fn instanceof Callable)) {
+            throw new RuntimeException(
+                expr.paren,
+                'Can only call function and class methods.',
+            );
+        }
+
+        const args = expr.args.map(arg => this.evaluate(arg));
+
+        if (args.length !== fn.arity) {
+            throw new RuntimeException(
+                expr.paren,
+                `Expected ${fn.arity} arguments but got ${args.length}.`,
+            );
+        }
+
+        return fn.call(this, args);
     }
 
     visitBinaryExpr(expr: Binary): any {

@@ -8,6 +8,7 @@ import {
     Variable,
     Assign,
     Logical,
+    Call,
 } from './ast/expr';
 
 export default class AstPrinter implements ExprVisitor<string> {
@@ -41,6 +42,10 @@ export default class AstPrinter implements ExprVisitor<string> {
 
     visitUnaryExpr(expr: Unary): string {
         return this.parenthesize(expr.operation.lexeme, expr.right);
+    }
+
+    visitCallExpr(expr: Call): string {
+        return this.parenthesize('call', expr.callee, ...expr.args);
     }
 
     private parenthesize(name: string, ...exprs: Expr[]): string {

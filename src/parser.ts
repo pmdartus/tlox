@@ -20,6 +20,7 @@ import {
     Variable,
     Assign,
     Logical,
+    Call,
 } from './ast/expr';
 import { equal } from 'assert';
 
@@ -123,7 +124,7 @@ export default class Parser {
         try {
             this.loopDepth++;
             const body = this.statement();
-    
+
             return new While(condition, body);
         } finally {
             this.loopDepth--;
@@ -185,13 +186,15 @@ export default class Parser {
         } finally {
             this.loopDepth--;
         }
-        
     }
 
     // breakStmt -> "break" ";" ;
     private breakStatement() {
         if (this.loopDepth <= 0) {
-            this.error(this.previous(), 'Must be inside a loop to use "break".');
+            this.error(
+                this.previous(),
+                'Must be inside a loop to use "break".',
+            );
         }
 
         this.consume(TokenType.SEMI, 'Expected ";" after "break".');
@@ -356,15 +359,54 @@ export default class Parser {
     }
 
     // unary → ( "!" | "-" ) unary
-    //         | primary ;
+    //         | call ;
     private unary(): Expr {
         if (this.match(TokenType.BANG, TokenType.MINUS)) {
             const operator = this.previous();
             const right = this.unary();
             return new Unary(operator, right);
         } else {
-            return this.primary();
+            return this.call();
         }
+    }
+
+    // call -> primary ( "(" arguments? ")" )*
+    private call() {
+        let expr = this.primary();
+
+        while (true) {
+            if (this.match(TokenType.LEFT_PAREN)) {
+                expr = this.finishCall(expr);
+            } else {
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    // arguments -> expr ("," expr)*
+    private finishCall(callee: Expr) {
+        const args = [];
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            do {
+                if (args.length > 8) {
+                    this.error(
+                        this.peek(),
+                        'Cannot have more than 8 arguments',
+                    );
+                }
+
+                args.push(this.expression());
+            } while (this.match(TokenType.COMMA));
+        }
+
+        const paren = this.consume(
+            TokenType.RIGHT_PAREN,
+            'Expected ")" after arguments.',
+        );
+
+        return new Call(callee, paren, args);
     }
 
     // primary → NUMBER | STRING | "false" | "true" | "nil" | "(" expression ")" | INDENTIFIER ;

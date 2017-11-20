@@ -22,6 +22,7 @@ defineAst(
         ['Grouping', 'expr: Expr'],
         ['Literal', 'value: any'],
         ['Unary', 'operation: Token, right:Expr'],
+        ['Call', 'callee: Expr, paren: Token, args: Expr[]'],
         ['Logical', 'left: Expr, operator: Token, right: Expr'],
         ['Variable', 'name: Token']
     ]),
