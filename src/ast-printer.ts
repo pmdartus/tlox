@@ -9,6 +9,7 @@ import {
     Assign,
     Logical,
     Call,
+    Function,
 } from './ast/expr';
 
 export default class AstPrinter implements ExprVisitor<string> {
@@ -16,7 +17,11 @@ export default class AstPrinter implements ExprVisitor<string> {
         return expr.accept(this);
     }
 
-    visitAssignExpr(expr: Assign) {
+    visitFunctionExpr(expr: Function): string {
+        return `(fn ${expr.parameter.map(t => t.lexeme).join(' ')})`;
+    }
+
+    visitAssignExpr(expr: Assign): string {
         return this.parenthesize(`${expr.name.lexeme} =`, expr.value);
     }
 
