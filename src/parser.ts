@@ -1,30 +1,8 @@
 import Runner from './runner';
 import Token, { TokenType } from './token';
 
-import {
-    Stmt,
-    Print,
-    Expression,
-    Var,
-    Block,
-    If,
-    While,
-    Break,
-    Function,
-    Return,
-} from './ast/stmt';
-import {
-    Expr,
-    Binary,
-    Unary,
-    Literal,
-    Grouping,
-    Variable,
-    Assign,
-    Logical,
-    Call,
-} from './ast/expr';
-import { equal } from 'assert';
+import * as Stmt from './ast/stmt';
+import * as Expr from './ast/expr';
 
 class ParserError extends Error {}
 
@@ -40,7 +18,7 @@ export default class Parser {
         this.runner = runner;
     }
 
-    parse(): Stmt[] {
+    parse(): Stmt.Stmt[] {
         const statements = [];
 
         while (!this.isAtEnd()) {
@@ -54,7 +32,7 @@ export default class Parser {
     }
 
     // declaration → funDecl | varDecl | statement ;
-    private declaration() {
+    private declaration(): Stmt.Stmt | undefined {
         try {
             if (this.match(TokenType.FUN)) {
                 return this.function('function');
@@ -72,12 +50,18 @@ export default class Parser {
 
     // funDecl -> "fun" function
     // function -> IDENTIFIER "(" parameters? ")" block
-    private function(kind: string) {
+    private function(kind: string): Stmt.Stmt {
         const name = this.consume(
             TokenType.IDENTIFIER,
             `Expected ${kind} name.`,
         );
 
+        const body = this.functionBody(kind);
+
+        return new Stmt.Function(name, body);
+    }
+
+    private functionBody(kind: string) {
         this.consume(TokenType.LEFT_PAREN, `Expected "(" after ${kind} name.`);
 
         const parameters = [];
@@ -104,7 +88,7 @@ export default class Parser {
 
         const body = this.block();
 
-        return new Function(name, parameters, body);
+        return new Expr.Function(parameters, body);
     }
 
     // varDecl -> IDENTIFIER ("=" expression)? ";" ;
@@ -116,18 +100,18 @@ export default class Parser {
 
         let initializer = this.match(TokenType.EQUAL)
             ? this.expression()
-            : new Literal(null);
+            : new Expr.Literal(null);
 
         this.consume(TokenType.SEMI, 'Expected ";" after variable declaration');
-        return new Var(name, initializer);
+        return new Stmt.Var(name, initializer);
     }
 
     //statement → exprStmt | printStmt | block | ifStmt | whileStmt  | forStmt | breakStmt | returnStmt ;
-    private statement(): Stmt {
+    private statement(): Stmt.Stmt {
         if (this.match(TokenType.PRINT)) {
             return this.printStatement();
         } else if (this.match(TokenType.LEFT_BRACE)) {
-            return new Block(this.block());
+            return new Stmt.Block(this.block());
         } else if (this.match(TokenType.IF)) {
             return this.ifStatement();
         } else if (this.match(TokenType.WHILE)) {
@@ -155,7 +139,7 @@ export default class Parser {
             elseBranch = this.statement();
         }
 
-        return new If(condition, thenBranch, elseBranch);
+        return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
     // whileStmt -> "while" "(" condition ")" statement ;
@@ -171,7 +155,7 @@ export default class Parser {
             this.loopDepth++;
             const body = this.statement();
 
-            return new While(condition, body);
+            return new Stmt.While(condition, body);
         } finally {
             this.loopDepth--;
         }
@@ -214,18 +198,18 @@ export default class Parser {
 
             // If the increment is defined, add it at the end of the body block
             if (increment) {
-                body = new Block([body, new Expression(increment)]);
+                body = new Stmt.Block([body, new Stmt.Expression(increment)]);
             }
 
             // If no condition is defined, then set it to true
             if (!condition) {
-                condition = new Literal(true);
+                condition = new Expr.Literal(true);
             }
-            body = new While(condition, body);
+            body = new Stmt.While(condition, body);
 
             // If an intializer is defined the add it before the while loop execution
             if (initializer) {
-                body = new Block([initializer, body]);
+                body = new Stmt.Block([initializer, body]);
             }
 
             return body;
@@ -244,20 +228,20 @@ export default class Parser {
         }
 
         this.consume(TokenType.SEMI, 'Expected ";" after "break".');
-        return new Break();
+        return new Stmt.Break();
     }
 
     private returnStatement() {
         const keywrod = this.previous();
-        
-        let value: Expr = new Literal(null);
+
+        let value: Expr.Expr = new Expr.Literal(null);
         if (!this.check(TokenType.SEMI)) {
             value = this.expression();
         }
 
         this.consume(TokenType.SEMI, 'Expected ";" after return value.');
 
-        return new Return(keywrod, value);
+        return new Stmt.Return(keywrod, value);
     }
 
     // printStmt -> "print" expr ";" ;
@@ -267,7 +251,7 @@ export default class Parser {
             TokenType.SEMI,
             'Expected ";" at the end of the expression.',
         );
-        return new Print(expr);
+        return new Stmt.Print(expr);
     }
 
     // exprStmt -> expression ";"
@@ -277,11 +261,11 @@ export default class Parser {
             TokenType.SEMI,
             'Expected ";" at the end of the expression.',
         );
-        return new Expression(expr);
+        return new Stmt.Expression(expr);
     }
 
     // block -> (declaration)* "}" ;
-    private block(): Stmt[] {
+    private block(): Stmt.Stmt[] {
         const statements = [];
 
         while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
@@ -297,21 +281,21 @@ export default class Parser {
     }
 
     // expression → assignment
-    private expression(): Expr {
+    private expression(): Expr.Expr {
         return this.assignment();
     }
 
     // assignment -> identifier "=" assignment | logic_or ;
-    private assignment(): Expr {
+    private assignment(): Expr.Expr {
         const expr = this.or();
 
         if (this.match(TokenType.EQUAL)) {
             const equals = this.previous();
             const value = this.assignment();
 
-            if (expr instanceof Variable) {
+            if (expr instanceof Expr.Variable) {
                 const name = expr.name;
-                return new Assign(name, value);
+                return new Expr.Assign(name, value);
             }
 
             this.error(equals, 'Invalid assignment target.');
@@ -327,7 +311,7 @@ export default class Parser {
         while (this.match(TokenType.OR) && !this.isAtEnd()) {
             const operator = this.previous();
             const right = this.and();
-            expr = new Logical(expr, operator, right);
+            expr = new Expr.Logical(expr, operator, right);
         }
 
         return expr;
@@ -340,40 +324,40 @@ export default class Parser {
         while (this.match(TokenType.AND) && !this.isAtEnd()) {
             const operator = this.previous();
             const right = this.and();
-            expr = new Logical(expr, operator, right);
+            expr = new Expr.Logical(expr, operator, right);
         }
 
         return expr;
     }
 
     // coma -> equality ( "," equality )* ;
-    private coma(): Expr {
+    private coma(): Expr.Expr {
         let expr = this.equality();
 
         while (this.match(TokenType.COMMA)) {
             const operator = this.previous();
             const right = this.equality();
-            expr = new Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
     }
 
     // equality → comparison ( ( "!=" | "==" ) comparison )* ;
-    private equality(): Expr {
+    private equality(): Expr.Expr {
         let expr = this.comparison();
 
         while (this.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
             const operator = this.previous();
             const right = this.comparison();
-            expr = new Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
     }
 
     // comparison → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
-    private comparison(): Expr {
+    private comparison(): Expr.Expr {
         let expr = this.addition();
 
         while (
@@ -386,33 +370,33 @@ export default class Parser {
         ) {
             const operator = this.previous();
             const right = this.addition();
-            expr = new Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
     }
 
     // addition → multiplication ( ( "-" | "+" ) multiplication )* ;
-    private addition(): Expr {
+    private addition(): Expr.Expr {
         let expr = this.multiplication();
 
         while (this.match(TokenType.PLUS, TokenType.MINUS)) {
             const operator = this.previous();
             const right = this.multiplication();
-            expr = new Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
     }
 
     // multiplication → unary ( ( "/" | "*" ) unary )* ;
-    private multiplication(): Expr {
+    private multiplication(): Expr.Expr {
         let expr = this.unary();
 
         while (this.match(TokenType.SLASH, TokenType.STAR)) {
             const operator = this.previous();
             const right = this.multiplication();
-            expr = new Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
@@ -420,18 +404,18 @@ export default class Parser {
 
     // unary → ( "!" | "-" ) unary
     //         | call ;
-    private unary(): Expr {
+    private unary(): Expr.Expr {
         if (this.match(TokenType.BANG, TokenType.MINUS)) {
             const operator = this.previous();
             const right = this.unary();
-            return new Unary(operator, right);
+            return new Expr.Unary(operator, right);
         } else {
             return this.call();
         }
     }
 
     // call -> primary ( "(" arguments? ")" )*
-    private call() {
+    private call(): Expr.Expr {
         let expr = this.primary();
 
         while (true) {
@@ -446,7 +430,7 @@ export default class Parser {
     }
 
     // arguments -> expr ("," expr)*
-    private finishCall(callee: Expr) {
+    private finishCall(callee: Expr.Expr): Expr.Expr {
         const args = [];
         if (!this.check(TokenType.RIGHT_PAREN)) {
             do {
@@ -466,21 +450,21 @@ export default class Parser {
             'Expected ")" after arguments.',
         );
 
-        return new Call(callee, paren, args);
+        return new Expr.Call(callee, paren, args);
     }
 
     // primary → NUMBER | STRING | "false" | "true" | "nil" | "(" expression ")" | INDENTIFIER ;
-    private primary(): Expr {
+    private primary(): Expr.Expr {
         if (this.match(TokenType.FALSE)) {
-            return new Literal(false);
+            return new Expr.Literal(false);
         } else if (this.match(TokenType.TRUE)) {
-            return new Literal(true);
+            return new Expr.Literal(true);
         } else if (this.match(TokenType.NIL)) {
-            return new Literal(null);
+            return new Expr.Literal(null);
         }
 
         if (this.match(TokenType.NUMBER, TokenType.STRING)) {
-            return new Literal(this.previous().literal);
+            return new Expr.Literal(this.previous().literal);
         }
 
         if (this.match(TokenType.LEFT_PAREN)) {
@@ -491,11 +475,15 @@ export default class Parser {
                 `Expected ')' after expression.`,
             );
 
-            return new Grouping(expr);
+            return new Expr.Grouping(expr);
         }
 
         if (this.match(TokenType.IDENTIFIER)) {
-            return new Variable(this.previous());
+            return new Expr.Variable(this.previous());
+        }
+
+        if (this.match(TokenType.FUN)) {
+            return this.functionBody('function');
         }
 
         throw this.error(this.peek(), 'Expected expression');

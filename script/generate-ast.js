@@ -24,10 +24,12 @@ defineAst(
         ['Unary', 'operation: Token, right:Expr'],
         ['Call', 'callee: Expr, paren: Token, args: Expr[]'],
         ['Logical', 'left: Expr, operator: Token, right: Expr'],
-        ['Variable', 'name: Token']
+        ['Variable', 'name: Token'],
+        ['Function', 'parameter: Token[], body: Stmt[]']
     ]),
     [
-        `import Token from '../token'`
+        `import Token from '../token'`,
+        `import { Stmt } from './stmt'`
     ]
 );
 
@@ -42,12 +44,12 @@ defineAst(
         ['Break', ''],
         ['Print', 'expr: Expr'],
         ['Var', 'name: Token, initializer: Expr'],
-        ['Function', 'name: Token, parameter: Token[], body: Stmt[]'],
+        ['Function', 'name: Token, fn: FunctionExpr'],
         ['Return', 'keyword: Token, value: Expr'],
     ]),
     [
         `import Token from '../token'`,
-        `import { Expr } from './expr'`
+        `import { Expr, Function as FunctionExpr } from './expr'`
     ]
 )
 

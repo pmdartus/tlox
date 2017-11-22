@@ -1,6 +1,7 @@
 /* /!\ Genreated via "npm run genreate-ast" /!\ */
 
 import Token from '../token';
+import { Stmt } from './stmt';
 
 export interface ExprVisitor<V> {
     visitAssignExpr(expr: Assign): V;
@@ -11,6 +12,7 @@ export interface ExprVisitor<V> {
     visitCallExpr(expr: Call): V;
     visitLogicalExpr(expr: Logical): V;
     visitVariableExpr(expr: Variable): V;
+    visitFunctionExpr(expr: Function): V;
 }
 
 export abstract class Expr {
@@ -118,5 +120,18 @@ export class Variable extends Expr {
     }
     accept<V>(visitor: ExprVisitor<V>): V {
         return visitor.visitVariableExpr(this);
+    }
+}
+
+export class Function extends Expr {
+    parameter: Token[];
+    body: Stmt[];
+    constructor(parameter: Token[], body: Stmt[]) {
+        super();
+        this.parameter = parameter;
+        this.body = body;
+    }
+    accept<V>(visitor: ExprVisitor<V>): V {
+        return visitor.visitFunctionExpr(this);
     }
 }
