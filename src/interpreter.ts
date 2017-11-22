@@ -83,7 +83,7 @@ export default class Interpreter
     }
 
     visitFunctionStmt(stmt: Function) {
-        const fn = new LoxFunction(stmt);
+        const fn = new LoxFunction(stmt, this.evironment);
         this.evironment.define(stmt.name.lexeme, fn);
     }
 
