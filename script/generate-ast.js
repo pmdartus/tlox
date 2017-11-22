@@ -42,7 +42,8 @@ defineAst(
         ['Break', ''],
         ['Print', 'expr: Expr'],
         ['Var', 'name: Token, initializer: Expr'],
-        ['Function', 'name: Token, parameter: Token[], body: Stmt[]']
+        ['Function', 'name: Token, parameter: Token[], body: Stmt[]'],
+        ['Return', 'keyword: Token, value: Expr'],
     ]),
     [
         `import Token from '../token'`,

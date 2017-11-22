@@ -22,6 +22,7 @@ import {
     If,
     While,
     Function,
+    Return,
 } from './ast/stmt';
 import Environment from './environment';
 import { LoxCallable, LoxFunction } from './callable';
@@ -35,6 +36,14 @@ export class RuntimeException extends Error {
 }
 
 class BreakException extends Error {}
+
+export class ReturnException extends Error {
+    value: any
+    constructor(value: any) {
+        super();
+        this.value = value;
+    }
+}
 
 export default class Interpreter
     implements ExprVisitor<any>, StmtVisitor<void> {
@@ -76,6 +85,15 @@ export default class Interpreter
     visitFunctionStmt(stmt: Function) {
         const fn = new LoxFunction(stmt);
         this.evironment.define(stmt.name.lexeme, fn);
+    }
+
+    visitReturnStmt(stmt: Return) {
+        let value;
+        if (stmt.value !== null) {
+            value = this.evaluate(stmt.value);
+        }
+
+        throw new ReturnException(value);
     }
 
     visitVarStmt(stmt: Var) {

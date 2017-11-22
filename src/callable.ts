@@ -1,4 +1,4 @@
-import Interpreter from './interpreter';
+import Interpreter, { ReturnException } from './interpreter';
 import { Function, Block } from './ast/stmt';
 import Environment from './environment';
 
@@ -27,7 +27,16 @@ export class LoxFunction extends LoxCallable {
         }
 
         const body = new Block(this.declaration.body);
-        interpreter.executeBlock(body, environment);
+
+        try {
+            interpreter.executeBlock(body, environment);
+        } catch (error) {
+            if (error instanceof ReturnException) {
+                return error.value;
+            }
+
+            throw error;
+        }
     }
 
     toString() {

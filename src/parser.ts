@@ -11,6 +11,7 @@ import {
     While,
     Break,
     Function,
+    Return,
 } from './ast/stmt';
 import {
     Expr,
@@ -121,7 +122,7 @@ export default class Parser {
         return new Var(name, initializer);
     }
 
-    //statement → exprStmt | printStmt | block | ifStmt | whileStmt  | forStmt | breakStmt ;
+    //statement → exprStmt | printStmt | block | ifStmt | whileStmt  | forStmt | breakStmt | returnStmt ;
     private statement(): Stmt {
         if (this.match(TokenType.PRINT)) {
             return this.printStatement();
@@ -135,6 +136,8 @@ export default class Parser {
             return this.forStatement();
         } else if (this.match(TokenType.BREAK)) {
             return this.breakStatement();
+        } else if (this.match(TokenType.RETURN)) {
+            return this.returnStatement();
         } else {
             return this.expressionStatement();
         }
@@ -242,6 +245,19 @@ export default class Parser {
 
         this.consume(TokenType.SEMI, 'Expected ";" after "break".');
         return new Break();
+    }
+
+    private returnStatement() {
+        const keywrod = this.previous();
+        
+        let value: Expr = new Literal(null);
+        if (!this.check(TokenType.SEMI)) {
+            value = this.expression();
+        }
+
+        this.consume(TokenType.SEMI, 'Expected ";" after return value.');
+
+        return new Return(keywrod, value);
     }
 
     // printStmt -> "print" expr ";" ;
