@@ -25,8 +25,10 @@ export class ReturnException extends Error {
 
 export default class Interpreter
     implements Expr.ExprVisitor<any>, Stmt.StmtVisitor<void> {
+
     runner: Runner;
 
+    readonly locals: Map<Expr.Expr, number> = new Map();
     readonly globals = new Environment();
     private evironment = this.globals;
 
@@ -88,7 +90,7 @@ export default class Interpreter
     }
 
     visitVariableExpr(expr: Expr.Variable) {
-        return this.evironment.get(expr.name);
+        return this.lookupVariable(expr.name, expr);
     }
 
     visitExpressionStmt(stmt: Stmt.Expression) {
@@ -148,7 +150,13 @@ export default class Interpreter
     visitAssignExpr(expr: Expr.Assign): any {
         const value = this.evaluate(expr.value);
 
-        this.evironment.assign(expr.name, value);
+        const distance = this.locals.get(expr);
+        if (distance !== undefined) {
+            this.evironment.assignAt(distance, expr.name, value);
+        } else {
+            this.globals.assign(expr.name, value);
+        }
+
         return value;
     }
 
@@ -269,6 +277,20 @@ export default class Interpreter
 
     evaluate(expr: Expr.Expr): any {
         return expr.accept(this);
+    }
+
+    resolve(expr: Expr.Expr, depth: number) {
+        this.locals.set(expr, depth);
+    }
+
+    private lookupVariable(name: Token, expr: Expr.Expr) {
+        const distance = this.locals.get(expr);
+        
+        if (distance !== undefined) {
+            return this.evironment.getAt(distance, name.lexeme);
+        } else {
+            this.globals.get(name);
+        }
     }
 
     private isTruthy(value: any): boolean {

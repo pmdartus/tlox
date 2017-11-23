@@ -3,6 +3,7 @@ import Scanner from './scanner';
 import AstPrinter from './ast-printer';
 import Token, { TokenType } from './token';
 import Interpreter, { RuntimeException } from './interpreter';
+import Resolver from './resolver';
 
 export default class Runner {
     hadError = false;
@@ -16,6 +17,13 @@ export default class Runner {
 
         const parser = new Parser(tokens, this);
         const statements = parser.parse();
+
+        if (this.hadError) {
+            return;
+        }
+
+        const resolver = new Resolver(this.interpreter, this);
+        resolver.resolve(statements);
 
         if (this.hadError) {
             return;
