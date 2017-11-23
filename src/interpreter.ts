@@ -284,12 +284,13 @@ export default class Interpreter
     }
 
     private lookupVariable(name: Token, expr: Expr.Expr) {
+        debugger;
         const distance = this.locals.get(expr);
         
         if (distance !== undefined) {
             return this.evironment.getAt(distance, name.lexeme);
         } else {
-            this.globals.get(name);
+            return this.globals.get(name);
         }
     }
 

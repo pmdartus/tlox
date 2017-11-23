@@ -152,6 +152,8 @@ export default class Resolver
             this.runner.errorToken(name, 'Duplicate variable declaration in the scope.');
         }
 
+        debugger;
+
         current.set(name.lexeme, false);
     }
 
@@ -201,7 +203,6 @@ export default class Resolver
     }
 
     private resolveStmt(statement: Stmt.Stmt) {
-        debugger;
         statement.accept(this);
     }
 
