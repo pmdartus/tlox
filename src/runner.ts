@@ -4,12 +4,18 @@ import AstPrinter from './ast-printer';
 import Token, { TokenType } from './token';
 import Interpreter, { RuntimeException } from './interpreter';
 import Resolver from './resolver';
+import { Logger } from './logger';
 
 export default class Runner {
     hadError = false;
     hadRuntimeError = false;
-
     interpreter = new Interpreter(this);
+
+    logger: Logger;
+
+    constructor(logger: Logger) {
+        this.logger = logger;
+    }
 
     run(source: string) {
         const scanner = new Scanner(source, this);
@@ -45,12 +51,12 @@ export default class Runner {
     }
 
     runtimeError(error: RuntimeException) {
-        console.error(`[line ${error.token.line}] ${error.message}`);
+        this.logger.error(`[line ${error.token.line}] ${error.message}`);
         this.hadRuntimeError = true;
     }
 
     reportError(line: number, where: string, message: string) {
+        this.logger.error(`[line ${line}] Error ${where}: ${message}`);
         this.hadError = true;
-        console.error(`[line ${line}] Error ${where}: ${message}`);
     }
 }

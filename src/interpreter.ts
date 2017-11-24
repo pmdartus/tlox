@@ -99,7 +99,7 @@ export default class Interpreter
 
     visitPrintStmt(stmt: Stmt.Print) {
         const value = this.evaluate(stmt.expr);
-        console.log(value);
+        this.runner.logger.log(value.toString());
     }
 
     visitBlockStmt(stmt: Stmt.Block) {
