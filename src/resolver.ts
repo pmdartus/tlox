@@ -92,7 +92,7 @@ export default class Resolver
 
     visitReturnStmt(stmt: Stmt.Return) {
         if (this.functionType === FunctionType.NONE) {
-            this.runner.errorToken(stmt.keyword, 'Cannot return from top level');
+            this.runner.errorToken(stmt.keyword, 'Cannot return from top level.');
         }
 
         this.resolveExpr(stmt.value);
@@ -151,8 +151,6 @@ export default class Resolver
         if (current.has(name.lexeme)) {
             this.runner.errorToken(name, 'Duplicate variable declaration in the scope.');
         }
-
-        debugger;
 
         current.set(name.lexeme, false);
     }

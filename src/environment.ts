@@ -21,7 +21,7 @@ export default class Environment {
         } else {
             throw new RuntimeException(
                 name,
-                `Unefined variable for "${name.lexeme}".`,
+                `Undefined variable for "${name.lexeme}".`,
             );
         }
     }
@@ -39,7 +39,7 @@ export default class Environment {
 
         throw new RuntimeException(
             name,
-            `Unefined variable for "${name.lexeme}".`,
+            `Undefined variable for "${name.lexeme}".`,
         );
     }
 

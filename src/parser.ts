@@ -70,7 +70,7 @@ export default class Parser {
                 if (parameters.length >= 8) {
                     this.error(
                         this.peek(),
-                        'Cannot have more than 8 parameters',
+                        'Cannot have more than 8 parameters.',
                     );
                 }
 
@@ -437,7 +437,7 @@ export default class Parser {
                 if (args.length > 8) {
                     this.error(
                         this.peek(),
-                        'Cannot have more than 8 arguments',
+                        'Cannot have more than 8 arguments.',
                     );
                 }
 

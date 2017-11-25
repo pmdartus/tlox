@@ -7,6 +7,3 @@ fun thrice(fn) {
 thrice(fun (a) {
   print a;
 });
-// "1".
-// "2".
-// "3".
