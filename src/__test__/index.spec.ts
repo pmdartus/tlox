@@ -5,12 +5,12 @@ enum LogType {
     DEBUG,
     LOG,
     WARN,
-    ERROR
+    ERROR,
 }
 
 interface LogLine {
-    type: LogType,
-    msg: string
+    type: LogType;
+    msg: string;
 }
 
 class TestLogger implements Logger {
@@ -56,37 +56,27 @@ beforeEach(() => {
 describe('expressions', () => {
     test('number', () => {
         runner.run(`print 1;`);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: '1' }
-        ]);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: '1' }]);
     });
 
     test('boolean', () => {
         runner.run(`print true;`);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: 'true' }
-        ]);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: 'true' }]);
     });
 
     test('addition', () => {
         runner.run(`print 1 + 2;`);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: '3' }
-        ]);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: '3' }]);
     });
 
     test('associativity', () => {
         runner.run(`print 3 * 5 - 2;`);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: '13' }
-        ]);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: '13' }]);
     });
 
     test('grouping', () => {
         runner.run(`print 3 * (5 - 2);`);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: '9' }
-        ]);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: '9' }]);
     });
 
     test('logical', () => {
@@ -135,9 +125,7 @@ describe('flow control', () => {
             }
             print i;
         `);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: '3' }
-        ])
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: '3' }]);
     });
 
     test('while - break', () => {
@@ -151,9 +139,7 @@ describe('flow control', () => {
             }
             print i;
         `);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: '6' }
-        ])
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: '6' }]);
     });
 
     test('while - break inner', () => {
@@ -176,7 +162,7 @@ describe('flow control', () => {
             { type: LogType.LOG, msg: 'inner0' },
             { type: LogType.LOG, msg: 'inner1' },
             { type: LogType.LOG, msg: 'outer2' },
-        ])
+        ]);
     });
 
     test('top level break', () => {
@@ -186,10 +172,14 @@ describe('flow control', () => {
             }
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 3] Error at "break": Must be inside a loop to use "break".' },
+            {
+                type: LogType.ERROR,
+                msg:
+                    '[line 3] Error at "break": Must be inside a loop to use "break".',
+            },
         ]);
     });
-    
+
     test('for loop', () => {
         runner.run(`
             var acc = 0;
@@ -198,9 +188,7 @@ describe('flow control', () => {
             }
             print acc;
         `);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: '3' },
-        ]);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: '3' }]);
     });
 
     test('for loop - no init', () => {
@@ -212,9 +200,7 @@ describe('flow control', () => {
             }
             print acc;
         `);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: '3' },
-        ]);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: '3' }]);
     });
 });
 
@@ -239,7 +225,10 @@ describe('function', () => {
             sayHello("John");
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 5] Expected 2 arguments but got 1.' },
+            {
+                type: LogType.ERROR,
+                msg: '[line 5] Expected 2 arguments but got 1.',
+            },
         ]);
     });
 
@@ -248,7 +237,11 @@ describe('function', () => {
             fun sayHello(a, b, c, d, e, f, g, h, i) {}
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 2] Error at "i": Cannot have more than 8 parameters.' },
+            {
+                type: LogType.ERROR,
+                msg:
+                    '[line 2] Error at "i": Cannot have more than 8 parameters.',
+            },
         ]);
     });
 
@@ -261,9 +254,7 @@ describe('function', () => {
             
             print fibonacci(10);
         `);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: '55' },
-        ]);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: '55' }]);
     });
 
     test('lambda', () => {
@@ -338,7 +329,11 @@ describe('scope', () => {
             return 1;
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 2] Error at "return": Cannot return from top level.' },
+            {
+                type: LogType.ERROR,
+                msg:
+                    '[line 2] Error at "return": Cannot return from top level.',
+            },
         ]);
     });
 
@@ -353,7 +348,11 @@ describe('scope', () => {
             print a;
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 6] Error at "b": Duplicate variable declaration in the scope.' },
+            {
+                type: LogType.ERROR,
+                msg:
+                    '[line 6] Error at "b": Duplicate variable declaration in the scope.',
+            },
         ]);
     });
 
@@ -364,7 +363,11 @@ describe('scope', () => {
             }
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 3] Error at "a": Cannot read variable before own init.' },
+            {
+                type: LogType.ERROR,
+                msg:
+                    '[line 3] Error at "a": Cannot read variable before own init.',
+            },
         ]);
     });
 });
@@ -379,7 +382,7 @@ describe('environment', () => {
         `);
 
         expect(logger.logs).toHaveLength(1);
-        
+
         const { type, msg } = logger.logs[0];
         expect(type).toBe(LogType.LOG);
 
@@ -392,7 +395,10 @@ describe('environment', () => {
             print a;
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 2] Undefined variable for "a".' },
+            {
+                type: LogType.ERROR,
+                msg: '[line 2] Undefined variable for "a".',
+            },
         ]);
     });
 
@@ -401,7 +407,10 @@ describe('environment', () => {
             a = 1;
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 2] Undefined variable for "a".' },
+            {
+                type: LogType.ERROR,
+                msg: '[line 2] Undefined variable for "a".',
+            },
         ]);
     });
 });

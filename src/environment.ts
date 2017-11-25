@@ -28,7 +28,7 @@ export default class Environment {
 
     assignAt(distance: number, name: Token, value: any) {
         return this.ancestor(distance).values.set(name.lexeme, value);
-    } 
+    }
 
     get(name: Token): any {
         if (this.values.has(name.lexeme)) {
@@ -48,8 +48,6 @@ export default class Environment {
     }
 
     ancestor(distance: number): Environment {
-        return distance === 0 ?
-            this :
-            this.enclosing!.ancestor(distance - 1);
+        return distance === 0 ? this : this.enclosing!.ancestor(distance - 1);
     }
 }

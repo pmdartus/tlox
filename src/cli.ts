@@ -20,7 +20,7 @@ const cliLogger = {
     error(msg: string) {
         console.error(msg);
     },
-}
+};
 
 const args = process.argv.slice(2);
 const runner = new Runner(cliLogger);

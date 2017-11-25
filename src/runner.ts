@@ -28,8 +28,6 @@ export default class Runner {
             return;
         }
 
-        debugger;
-
         const resolver = new Resolver(this.interpreter, this);
         resolver.resolve(statements);
 

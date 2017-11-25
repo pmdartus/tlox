@@ -8,12 +8,11 @@ type Scope = Map<string, boolean>;
 
 enum FunctionType {
     NONE,
-    FUNCTION
+    FUNCTION,
 }
 
 export default class Resolver
     implements Expr.ExprVisitor<void>, Stmt.StmtVisitor<void> {
-
     runner: Runner;
     interpreter: Interpreter;
     scopes: Scope[] = [];
@@ -55,12 +54,14 @@ export default class Resolver
     }
 
     visitVariableExpr(expr: Expr.Variable) {
-        debugger;
         if (
             this.scopes.length &&
             this.currentScope().get(expr.name.lexeme) === false
         ) {
-            this.runner.errorToken(expr.name, 'Cannot read variable before own init.');
+            this.runner.errorToken(
+                expr.name,
+                'Cannot read variable before own init.',
+            );
         }
 
         this.resolveLocal(expr, expr.name);
@@ -93,7 +94,10 @@ export default class Resolver
 
     visitReturnStmt(stmt: Stmt.Return) {
         if (this.functionType === FunctionType.NONE) {
-            this.runner.errorToken(stmt.keyword, 'Cannot return from top level.');
+            this.runner.errorToken(
+                stmt.keyword,
+                'Cannot return from top level.',
+            );
         }
 
         this.resolveExpr(stmt.value);
@@ -150,7 +154,10 @@ export default class Resolver
         const current = this.currentScope();
 
         if (current.has(name.lexeme)) {
-            this.runner.errorToken(name, 'Duplicate variable declaration in the scope.');
+            this.runner.errorToken(
+                name,
+                'Duplicate variable declaration in the scope.',
+            );
         }
 
         current.set(name.lexeme, false);

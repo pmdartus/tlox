@@ -25,7 +25,6 @@ export class ReturnException extends Error {
 
 export default class Interpreter
     implements Expr.ExprVisitor<any>, Stmt.StmtVisitor<void> {
-
     runner: Runner;
 
     readonly locals: Map<Expr.Expr, number> = new Map();
@@ -209,8 +208,6 @@ export default class Interpreter
 
         switch (expr.operator.type) {
             case TokenType.PLUS:
-                debugger;
-
                 if (typeof left === 'string' || typeof right === 'string') {
                     return String(left) + String(right);
                 } else if (
@@ -219,7 +216,6 @@ export default class Interpreter
                 ) {
                     return left + right;
                 }
-
 
                 throw new RuntimeException(
                     expr.operator,
@@ -288,7 +284,7 @@ export default class Interpreter
 
     private lookupVariable(name: Token, expr: Expr.Expr) {
         const distance = this.locals.get(expr);
-        
+
         if (distance !== undefined) {
             return this.evironment.getAt(distance, name.lexeme);
         } else {
