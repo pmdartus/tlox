@@ -50,6 +50,6 @@ export default class Environment {
     ancestor(distance: number): Environment {
         return distance === 0 ?
             this :
-            this.ancestor(distance - 1);
+            this.enclosing!.ancestor(distance - 1);
     }
 }

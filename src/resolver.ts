@@ -55,6 +55,7 @@ export default class Resolver
     }
 
     visitVariableExpr(expr: Expr.Variable) {
+        debugger;
         if (
             this.scopes.length &&
             this.currentScope().get(expr.name.lexeme) === false

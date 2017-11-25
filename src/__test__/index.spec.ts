@@ -190,7 +190,7 @@ describe('flow control', () => {
         ]);
     });
     
-    test.skip('for loop', () => {
+    test('for loop', () => {
         runner.run(`
             var acc = 0;
             for (var i = 0; i < 3; i = i + 1) {
@@ -266,7 +266,7 @@ describe('function', () => {
         ]);
     });
 
-    test.skip('lambda', () => {
+    test('lambda', () => {
         runner.run(`
             fun thrice(fn) {
                 for (var i = 1; i <= 3; i = i + 1) {
@@ -279,11 +279,13 @@ describe('function', () => {
             });
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 5] Expected 2 arguments but got 1.' },
+            { type: LogType.LOG, msg: '1' },
+            { type: LogType.LOG, msg: '2' },
+            { type: LogType.LOG, msg: '3' },
         ]);
     });
 
-    test.skip('closure', () => {
+    test('closure', () => {
         runner.run(`
             fun counter() {
                 var value = 0;
@@ -300,7 +302,9 @@ describe('function', () => {
             print c();
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 5] Expected 2 arguments but got 1.' },
+            { type: LogType.LOG, msg: '1' },
+            { type: LogType.LOG, msg: '2' },
+            { type: LogType.LOG, msg: '3' },
         ]);
     });
 });
@@ -338,21 +342,26 @@ describe('scope', () => {
         ]);
     });
 
-    test.skip('duplicate variable declaration', () => {
+    test('duplicate variable declaration', () => {
         runner.run(`
             var a = 0;
             var a = 1;
+            {
+                var b = 0;
+                var b = 1;
+            }
             print a;
         `);
         expect(logger.logs).toEqual([
-            { type: LogType.ERROR, msg: '[line 3] Error at "a": Duplicate variable declaration in the scope.' },
+            { type: LogType.ERROR, msg: '[line 6] Error at "b": Duplicate variable declaration in the scope.' },
         ]);
     });
 
-    test.skip('read var before init', () => {
+    test('read var before init', () => {
         runner.run(`
-            var a;
-            print a;
+            {
+                var a = a;
+            }
         `);
         expect(logger.logs).toEqual([
             { type: LogType.ERROR, msg: '[line 3] Error at "a": Cannot read variable before own init.' },
