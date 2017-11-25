@@ -4,7 +4,18 @@ import Interpreter from './interpreter';
 import Token from './token';
 import Runner from './runner';
 
-type Scope = Map<string, boolean>;
+enum VariableState {
+    DECLARED,
+    DEFINED,
+    READ,
+}
+
+interface ScopeVariable {
+    name: Token;
+    state: VariableState
+}
+
+type Scope = Map<string, ScopeVariable>;
 
 enum FunctionType {
     NONE,
@@ -23,13 +34,16 @@ export default class Resolver
         this.interpreter = interpreter;
     }
 
-    // Interesting visitors for the resolver
-    // -------------------------------------
-
     visitBlockStmt(stmt: Stmt.Block) {
         this.beginScope();
         this.resolve(stmt.statements);
-        this.endScope();
+        const scope = this.endScope();
+
+        for (let variable of scope!.values()) {
+            if (variable.state < VariableState.READ) {
+                this.runner.errorToken(variable.name, 'Unused variable.');
+            }
+        }
     }
 
     visitFunctionStmt(stmt: Stmt.Function) {
@@ -54,26 +68,24 @@ export default class Resolver
     }
 
     visitVariableExpr(expr: Expr.Variable) {
-        if (
-            this.scopes.length &&
-            this.currentScope().get(expr.name.lexeme) === false
-        ) {
-            this.runner.errorToken(
-                expr.name,
-                'Cannot read variable before own init.',
-            );
+        if (this.scopes.length) {
+            const variable = this.currentScope().get(expr.name.lexeme);
+
+            if (variable && variable.state === VariableState.DECLARED) {
+                this.runner.errorToken(
+                    expr.name,
+                    'Cannot read variable before own init.',
+                );
+            }
         }
 
-        this.resolveLocal(expr, expr.name);
+        this.resolveLocal(expr, expr.name, true);
     }
 
     visitAssignExpr(expr: Expr.Assign) {
         this.resolveExpr(expr.value);
-        this.resolveLocal(expr, expr.name);
+        this.resolveLocal(expr, expr.name, false);
     }
-
-    // Visitors needed for the rest of the tree
-    // ----------------------------------------
 
     visitExpressionStmt(stmt: Stmt.Expression) {
         this.resolveExpr(stmt.expr);
@@ -143,7 +155,7 @@ export default class Resolver
     }
 
     private endScope() {
-        this.scopes.pop();
+        return this.scopes.pop();
     }
 
     private declare(name: Token) {
@@ -160,7 +172,10 @@ export default class Resolver
             );
         }
 
-        current.set(name.lexeme, false);
+        current.set(name.lexeme, {
+            name,
+            state: VariableState.DECLARED
+        });
     }
 
     private define(name: Token) {
@@ -168,7 +183,10 @@ export default class Resolver
             return;
         }
 
-        this.currentScope().set(name.lexeme, true);
+        this.currentScope().set(name.lexeme, {
+            name,
+            state: VariableState.DEFINED
+        });
     }
 
     private currentScope() {
@@ -192,10 +210,12 @@ export default class Resolver
         this.functionType = enclosingType;
     }
 
-    private resolveLocal(expr: Expr.Expr, name: Token) {
+    private resolveLocal(expr: Expr.Expr, name: Token, isRead: boolean) {
         for (let i = this.scopes.length - 1; i >= 0; i--) {
             if (this.scopes[i].has(name.lexeme)) {
                 this.interpreter.resolve(expr, this.scopes.length - 1 - i);
+
+                this.scopes[i].get(name.lexeme)!.state = VariableState.READ;
             }
         }
     }

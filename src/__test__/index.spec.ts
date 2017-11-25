@@ -344,6 +344,8 @@ describe('scope', () => {
             {
                 var b = 0;
                 var b = 1;
+
+                print b;
             }
             print a;
         `);
@@ -360,6 +362,7 @@ describe('scope', () => {
         runner.run(`
             {
                 var a = a;
+                print a;
             }
         `);
         expect(logger.logs).toEqual([
@@ -367,6 +370,20 @@ describe('scope', () => {
                 type: LogType.ERROR,
                 msg:
                     '[line 3] Error at "a": Cannot read variable before own init.',
+            },
+        ]);
+    });
+
+    test('unused variable', () => {
+        runner.run(`
+            {
+                var a;
+            }
+        `);
+        expect(logger.logs).toEqual([
+            {
+                type: LogType.ERROR,
+                msg: '[line 3] Error at "a": Unused variable.',
             },
         ]);
     });
