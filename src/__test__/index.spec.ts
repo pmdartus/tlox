@@ -431,3 +431,26 @@ describe('environment', () => {
         ]);
     });
 });
+
+describe('class', () => {
+    test('print class', () => {
+        runner.run(`
+            class Bagel {}
+            print Bagel;
+        `);
+        expect(logger.logs).toEqual([
+            { type: LogType.LOG, msg: '<Class Bagel>' },
+        ]);
+    });
+
+    test('print instance', () => {
+        runner.run(`
+            class Bagel {}
+            var bagel = Bagel();
+            print bagel;
+        `);
+        expect(logger.logs).toEqual([
+            { type: LogType.LOG, msg: '<Instance Bagel>' },
+        ]);
+    });
+});

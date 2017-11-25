@@ -6,6 +6,7 @@ import { Expr, Function as FunctionExpr } from './expr';
 export interface StmtVisitor<V> {
     visitBlockStmt(stmt: Block): V;
     visitExpressionStmt(stmt: Expression): V;
+    visitClassStmt(stmt: Class): V;
     visitIfStmt(stmt: If): V;
     visitWhileStmt(stmt: While): V;
     visitBreakStmt(stmt: Break): V;
@@ -38,6 +39,19 @@ export class Expression extends Stmt {
     }
     accept<V>(visitor: StmtVisitor<V>): V {
         return visitor.visitExpressionStmt(this);
+    }
+}
+
+export class Class extends Stmt {
+    name: Token;
+    methods: Function[];
+    constructor(name: Token, methods: Function[]) {
+        super();
+        this.name = name;
+        this.methods = methods;
+    }
+    accept<V>(visitor: StmtVisitor<V>): V {
+        return visitor.visitClassStmt(this);
     }
 }
 

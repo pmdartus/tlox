@@ -4,6 +4,7 @@ import * as Expr from './ast/expr';
 import * as Stmt from './ast/stmt';
 import Environment from './environment';
 import { LoxCallable, LoxFunction } from './callable';
+import { LoxClass, LoxInstance } from './class';
 
 export class RuntimeException extends Error {
     token: Token;
@@ -90,6 +91,12 @@ export default class Interpreter
 
     visitVariableExpr(expr: Expr.Variable) {
         return this.lookupVariable(expr.name, expr);
+    }
+
+    visitClassStmt(stmt: Stmt.Class) {
+        this.evironment.define(stmt.name.lexeme, null);
+        const klass = new LoxClass(stmt.name.lexeme);
+        this.evironment.assign(stmt.name, klass);
     }
 
     visitExpressionStmt(stmt: Stmt.Expression) {
@@ -181,9 +188,9 @@ export default class Interpreter
     }
 
     visitCallExpr(expr: Expr.Call): any {
-        const fn = this.evaluate(expr.callee) as LoxCallable;
+        const fn = this.evaluate(expr.callee);
 
-        if (!(fn instanceof LoxCallable)) {
+        if (!(fn instanceof LoxCallable) && !(fn instanceof LoxClass)) {
             throw new RuntimeException(
                 expr.paren,
                 'Can only call function and class methods.',
@@ -200,6 +207,28 @@ export default class Interpreter
         }
 
         return fn.call(this, args);
+    }
+
+    visitGetExpr(expr: Expr.Get): any {
+        const object = this.evaluate(expr.object);
+
+        if (object instanceof LoxInstance) {
+            return object.get(expr.name);
+        }
+
+        throw new RuntimeException(expr.name, 'Only instances have properties.');
+    }
+
+    visitSetExpr(expr: Expr.Set): any {
+        const object = this.evaluate(expr.object);
+
+        if (!(object instanceof LoxInstance)) {
+            throw new RuntimeException(expr.name, 'Only instances have fields.');
+        }
+
+        const value = this.evaluate(expr.value);
+        object.set(expr.name, value);
+        return value;
     }
 
     visitBinaryExpr(expr: Expr.Binary): any {

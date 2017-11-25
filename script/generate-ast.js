@@ -23,6 +23,8 @@ defineAst(
         ['Literal', 'value: any'],
         ['Unary', 'operation: Token, right:Expr'],
         ['Call', 'callee: Expr, paren: Token, args: Expr[]'],
+        ['Get', 'object: Expr, name: Token'],
+        ['Set', 'object: Expr, name: Token, value: Expr'],
         ['Logical', 'left: Expr, operator: Token, right: Expr'],
         ['Variable', 'name: Token'],
         ['Function', 'parameter: Token[], body: Stmt[]']
@@ -39,6 +41,7 @@ defineAst(
     new Map([
         ['Block', 'statements: Stmt[]'],
         ['Expression', 'expr: Expr'],
+        ['Class', 'name: Token, methods: Function[]'],
         ['If', 'condition: Expr, thenBranch: Stmt, elseBranch: Stmt | undefined'],
         ['While', 'condition: Expr, body: Stmt'],
         ['Break', ''],

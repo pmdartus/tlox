@@ -10,6 +10,8 @@ export interface ExprVisitor<V> {
     visitLiteralExpr(expr: Literal): V;
     visitUnaryExpr(expr: Unary): V;
     visitCallExpr(expr: Call): V;
+    visitGetExpr(expr: Get): V;
+    visitSetExpr(expr: Set): V;
     visitLogicalExpr(expr: Logical): V;
     visitVariableExpr(expr: Variable): V;
     visitFunctionExpr(expr: Function): V;
@@ -94,6 +96,34 @@ export class Call extends Expr {
     }
     accept<V>(visitor: ExprVisitor<V>): V {
         return visitor.visitCallExpr(this);
+    }
+}
+
+export class Get extends Expr {
+    object: Expr;
+    name: Token;
+    constructor(object: Expr, name: Token) {
+        super();
+        this.object = object;
+        this.name = name;
+    }
+    accept<V>(visitor: ExprVisitor<V>): V {
+        return visitor.visitGetExpr(this);
+    }
+}
+
+export class Set extends Expr {
+    object: Expr;
+    name: Token;
+    value: Expr;
+    constructor(object: Expr, name: Token, value: Expr) {
+        super();
+        this.object = object;
+        this.name = name;
+        this.value = value;
+    }
+    accept<V>(visitor: ExprVisitor<V>): V {
+        return visitor.visitSetExpr(this);
     }
 }
 

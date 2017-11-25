@@ -12,7 +12,7 @@ enum VariableState {
 
 interface ScopeVariable {
     name: Token;
-    state: VariableState
+    state: VariableState;
 }
 
 type Scope = Map<string, ScopeVariable>;
@@ -85,6 +85,20 @@ export default class Resolver
     visitAssignExpr(expr: Expr.Assign) {
         this.resolveExpr(expr.value);
         this.resolveLocal(expr, expr.name, false);
+    }
+
+    visitGetExpr(expr: Expr.Get) {
+        this.resolveExpr(expr.object);
+    }
+
+    visitSetExpr(expr: Expr.Set) {
+        this.resolveExpr(expr.value);
+        this.resolveExpr(expr.object);
+    }
+
+    visitClassStmt(stmt: Stmt.Class) {
+        this.declare(stmt.name);
+        this.define(stmt.name);
     }
 
     visitExpressionStmt(stmt: Stmt.Expression) {
@@ -174,7 +188,7 @@ export default class Resolver
 
         current.set(name.lexeme, {
             name,
-            state: VariableState.DECLARED
+            state: VariableState.DECLARED,
         });
     }
 
@@ -185,7 +199,7 @@ export default class Resolver
 
         this.currentScope().set(name.lexeme, {
             name,
-            state: VariableState.DEFINED
+            state: VariableState.DEFINED,
         });
     }
 

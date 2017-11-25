@@ -3,6 +3,7 @@ import Token, { TokenType } from './token';
 
 import * as Stmt from './ast/stmt';
 import * as Expr from './ast/expr';
+import { Class } from './ast/stmt';
 
 class ParserError extends Error {}
 
@@ -31,13 +32,15 @@ export default class Parser {
         return statements;
     }
 
-    // declaration → funDecl | varDecl | statement ;
+    // declaration → funDecl | varDecl | classDecl | statement ;
     private declaration(): Stmt.Stmt | undefined {
         try {
             if (this.match(TokenType.FUN)) {
                 return this.function('function');
             } else if (this.match(TokenType.VAR)) {
                 return this.varDeclaration();
+            } else if (this.match(TokenType.CLASS)) {
+                return this.classDeclaration();
             } else {
                 return this.statement();
             }
@@ -50,7 +53,7 @@ export default class Parser {
 
     // funDecl -> "fun" function
     // function -> IDENTIFIER "(" parameters? ")" block
-    private function(kind: string): Stmt.Stmt {
+    private function(kind: string): Stmt.Function {
         const name = this.consume(
             TokenType.IDENTIFIER,
             `Expected ${kind} name.`,
@@ -89,6 +92,25 @@ export default class Parser {
         const body = this.block();
 
         return new Expr.Function(parameters, body);
+    }
+
+    // classDecl -> IDENTIFIER "{" function* "}" ;
+    private classDeclaration() {
+        const name = this.consume(
+            TokenType.IDENTIFIER,
+            'Expected a name for the class.',
+        );
+
+        this.consume(TokenType.LEFT_BRACE, 'Expected "{" after class name.');
+
+        const methods: Stmt.Function[] = [];
+        while (!this.isAtEnd() && !this.check(TokenType.RIGHT_BRACE)) {
+            methods.push(this.function('method'));
+        }
+
+        this.consume(TokenType.RIGHT_BRACE, 'Expected "}" after class.');
+
+        return new Class(name, methods);
     }
 
     // varDecl -> IDENTIFIER ("=" expression)? ";" ;
@@ -285,7 +307,7 @@ export default class Parser {
         return this.assignment();
     }
 
-    // assignment -> identifier "=" assignment | logic_or ;
+    // assignment -> ( call "." )? identifier "=" assignment | logic_or ;
     private assignment(): Expr.Expr {
         const expr = this.or();
 
@@ -294,8 +316,9 @@ export default class Parser {
             const value = this.assignment();
 
             if (expr instanceof Expr.Variable) {
-                const name = expr.name;
-                return new Expr.Assign(name, value);
+                return new Expr.Assign(expr.name, value);
+            } else if (expr instanceof Expr.Get) {
+                return new Expr.Set(expr.object, expr.name, value);
             }
 
             this.error(equals, 'Invalid assignment target.');
@@ -414,13 +437,19 @@ export default class Parser {
         }
     }
 
-    // call -> primary ( "(" arguments? ")" )*
+    // call -> primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
     private call(): Expr.Expr {
         let expr = this.primary();
 
         while (true) {
             if (this.match(TokenType.LEFT_PAREN)) {
                 expr = this.finishCall(expr);
+            } else if (this.match(TokenType.DOT)) {
+                const name = this.consume(
+                    TokenType.IDENTIFIER,
+                    'Expected property name after ".".',
+                );
+                expr = new Expr.Get(expr, name);
             } else {
                 break;
             }
