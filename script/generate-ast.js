@@ -42,7 +42,7 @@ defineAst(
     new Map([
         ['Block', 'statements: Stmt[]'],
         ['Expression', 'expr: Expr'],
-        ['Class', 'name: Token, methods: Function[]'],
+        ['Class', 'name: Token, methods: Function[], classMethods: Function[]'],
         ['If', 'condition: Expr, thenBranch: Stmt, elseBranch: Stmt | undefined'],
         ['While', 'condition: Expr, body: Stmt'],
         ['Break', ''],

@@ -557,4 +557,22 @@ describe('class', () => {
             },
         ]);
     });
+
+    test('static method', () => {
+        runner.run(`
+            class Math {
+                class square(n) {
+                    return n * n;
+                }
+            }
+            
+            print Math.square(3);
+        `);
+        expect(logger.logs).toEqual([
+            {
+                type: LogType.LOG,
+                msg: '9',
+            },
+        ]);
+    });
 });

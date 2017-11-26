@@ -113,23 +113,36 @@ export default class Resolver
         this.classType = ClassType.CLASS;
 
         this.declare(stmt.name);
-        this.beginScope();
-
-        this.currentScope().set('this', {
-            name: new Token(TokenType.THIS, 'this', undefined, stmt.name.line),
-            state: VariableState.DEFINED,
-        });
 
         for (let method of stmt.methods) {
+            this.beginScope();
+            this.currentScope().set('this', {
+                name: new Token(TokenType.THIS, 'this', undefined, stmt.name.line),
+                state: VariableState.DEFINED,
+            });
+
             let type = FunctionType.METHOD;
             if (method.name.lexeme === 'init') {
                 type = FunctionType.INITIALIZER;
             }
 
             this.resolveFunction(method.fn, type);
+
+            this.endScope();
         }
 
-        this.endScope();
+        for (let method of stmt.classMethods) {
+            this.beginScope();
+            this.currentScope().set('this', {
+                name: new Token(TokenType.THIS, 'this', undefined, stmt.name.line),
+                state: VariableState.DEFINED,
+            });
+
+            this.resolveFunction(method.fn, FunctionType.METHOD);
+
+            this.endScope();
+        }
+
         this.define(stmt.name);
 
         this.classType = currentClassType;

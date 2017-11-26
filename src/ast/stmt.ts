@@ -45,10 +45,12 @@ export class Expression extends Stmt {
 export class Class extends Stmt {
     name: Token;
     methods: Function[];
-    constructor(name: Token, methods: Function[]) {
+    classMethods: Function[];
+    constructor(name: Token, methods: Function[], classMethods: Function[]) {
         super();
         this.name = name;
         this.methods = methods;
+        this.classMethods = classMethods;
     }
     accept<V>(visitor: StmtVisitor<V>): V {
         return visitor.visitClassStmt(this);

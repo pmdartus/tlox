@@ -104,13 +104,16 @@ export default class Parser {
         this.consume(TokenType.LEFT_BRACE, 'Expected "{" after class name.');
 
         const methods: Stmt.Function[] = [];
+        const classMethods: Stmt.Function[] = [];
+
         while (!this.isAtEnd() && !this.check(TokenType.RIGHT_BRACE)) {
-            methods.push(this.function('method'));
+            const isStatic = this.match(TokenType.CLASS);
+            (isStatic ? classMethods : methods).push(this.function('method'));
         }
 
         this.consume(TokenType.RIGHT_BRACE, 'Expected "}" after class.');
 
-        return new Class(name, methods);
+        return new Class(name, methods, classMethods);
     }
 
     // varDecl -> IDENTIFIER ("=" expression)? ";" ;
