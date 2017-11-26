@@ -63,12 +63,17 @@ export default class Interpreter
     }
 
     visitFunctionStmt(stmt: Stmt.Function) {
-        const fn = new LoxFunction(stmt.name.lexeme, stmt.fn, this.evironment);
+        const fn = new LoxFunction(
+            stmt.name.lexeme,
+            stmt.fn,
+            this.evironment,
+            false,
+        );
         this.evironment.define(stmt.name.lexeme, fn);
     }
 
     visitFunctionExpr(expr: Expr.Function) {
-        return new LoxFunction(undefined, expr, this.evironment);
+        return new LoxFunction(undefined, expr, this.evironment, false);
     }
 
     visitReturnStmt(stmt: Stmt.Return) {
@@ -102,6 +107,7 @@ export default class Interpreter
                 method.name.lexeme,
                 method.fn,
                 this.evironment,
+                method.name.lexeme === 'init',
             );
         }
 

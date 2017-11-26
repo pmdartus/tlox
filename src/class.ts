@@ -1,6 +1,6 @@
 import Token from './token';
 import { LoxCallable, LoxFunction } from './callable';
-import { RuntimeException } from './interpreter';
+import Interpreter, { RuntimeException } from './interpreter';
 
 export class LoxClass implements LoxCallable {
     name: string;
@@ -11,8 +11,14 @@ export class LoxClass implements LoxCallable {
         this.methods = methods;
     }
 
-    call() {
+    call(interpreter: Interpreter, ...args: any[]) {
         const instance = new LoxInstance(this);
+
+        const init = this.methods['init'];
+        if (init) {
+            init.bind(instance).call(interpreter, args);
+        }
+
         return instance;
     }
 
@@ -23,7 +29,8 @@ export class LoxClass implements LoxCallable {
     }
 
     get arity() {
-        return 0;
+        const init = this.methods['init'];
+        return init ? init.arity : 0;
     }
 
     toString() {

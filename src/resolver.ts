@@ -21,6 +21,12 @@ enum FunctionType {
     NONE,
     FUNCTION,
     METHOD,
+    INITIALIZER,
+}
+
+enum ClassType {
+    NONE,
+    CLASS,
 }
 
 export default class Resolver
@@ -28,7 +34,9 @@ export default class Resolver
     runner: Runner;
     interpreter: Interpreter;
     scopes: Scope[] = [];
+
     functionType = FunctionType.NONE;
+    classType = ClassType.NONE;
 
     constructor(interpreter: Interpreter, runner: Runner) {
         this.runner = runner;
@@ -101,24 +109,40 @@ export default class Resolver
     }
 
     visitClassStmt(stmt: Stmt.Class) {
-        this.declare(stmt.name);
+        const currentClassType = this.classType;
+        this.classType = ClassType.CLASS;
 
+        this.declare(stmt.name);
         this.beginScope();
+
         this.currentScope().set('this', {
             name: new Token(TokenType.THIS, 'this', undefined, stmt.name.line),
             state: VariableState.DEFINED,
         });
 
         for (let method of stmt.methods) {
-            this.resolveFunction(method.fn, FunctionType.METHOD);
+            let type = FunctionType.METHOD;
+            if (method.name.lexeme === 'init') {
+                type = FunctionType.INITIALIZER;
+            }
+
+            this.resolveFunction(method.fn, type);
         }
 
         this.endScope();
-
         this.define(stmt.name);
+
+        this.classType = currentClassType;
     }
 
     visitThisExpr(expr: Expr.This) {
+        if (this.classType !== ClassType.CLASS) {
+            this.runner.errorToken(
+                expr.keyword,
+                'Can only be used in class methods.',
+            );
+        }
+
         this.resolveLocal(expr, expr.keyword, true);
     }
 
@@ -144,6 +168,11 @@ export default class Resolver
             this.runner.errorToken(
                 stmt.keyword,
                 'Cannot return from top level.',
+            );
+        } else if (this.functionType === FunctionType.INITIALIZER) {
+            this.runner.errorToken(
+                stmt.keyword,
+                'Cannot return a value from the intializer.',
             );
         }
 

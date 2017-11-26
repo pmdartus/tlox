@@ -505,4 +505,56 @@ describe('class', () => {
         `);
         expect(logger.logs).toEqual([{ type: LogType.LOG, msg: 'plain!' }]);
     });
+
+    test('this - illegal', () => {
+        runner.run(`
+            fun foo() {
+                return this.bar;
+            }
+            foo();
+        `);
+        expect(logger.logs).toEqual([
+            {
+                type: LogType.ERROR,
+                msg:
+                    '[line 3] Error at "this": Can only be used in class methods.',
+            },
+        ]);
+    });
+
+    test('intializer', () => {
+        runner.run(`
+            class Bagel {
+                init(flavor) {
+                    this.flavor = flavor;
+                }
+            }
+            var b = Bagel("plain");
+            print b.flavor;
+        `);
+        expect(logger.logs).toEqual([
+            {
+                type: LogType.LOG,
+                msg: 'plain',
+            },
+        ]);
+    });
+
+    test('initializer - return', () => {
+        runner.run(`
+            class Foo {
+                init() {
+                    return "something else";
+                }
+            }
+            Foo();
+        `);
+        expect(logger.logs).toEqual([
+            {
+                type: LogType.ERROR,
+                msg:
+                    '[line 4] Error at "return": Cannot return a value from the intializer.',
+            },
+        ]);
+    });
 });

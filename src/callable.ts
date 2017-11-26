@@ -14,16 +14,19 @@ export class LoxFunction extends LoxCallable {
     closure: Environment;
     name: string | undefined;
     declaration: Expr.Function;
+    isInitilizer: boolean;
 
     constructor(
         name: string | undefined,
         declaration: Expr.Function,
         closure: Environment,
+        isInitilizer: boolean,
     ) {
         super();
         this.name = name;
         this.declaration = declaration;
         this.closure = closure;
+        this.isInitilizer = isInitilizer;
     }
 
     get arity() {
@@ -48,12 +51,21 @@ export class LoxFunction extends LoxCallable {
 
             throw error;
         }
+
+        if (this.isInitilizer) {
+            return environment.getAt(0, 'this');
+        }
     }
 
     bind(instance: LoxInstance) {
         const environment = new Environment(this.closure);
         environment.define('this', instance);
-        return new LoxFunction(this.name, this.declaration, environment);
+        return new LoxFunction(
+            this.name,
+            this.declaration,
+            environment,
+            this.isInitilizer,
+        );
     }
 
     toString() {
