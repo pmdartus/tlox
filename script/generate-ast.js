@@ -25,6 +25,7 @@ defineAst(
         ['Call', 'callee: Expr, paren: Token, args: Expr[]'],
         ['Get', 'object: Expr, name: Token'],
         ['Set', 'object: Expr, name: Token, value: Expr'],
+        ['This', 'keyword: Token'],
         ['Logical', 'left: Expr, operator: Token, right: Expr'],
         ['Variable', 'name: Token'],
         ['Function', 'parameter: Token[], body: Stmt[]']

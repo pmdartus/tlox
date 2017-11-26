@@ -461,9 +461,7 @@ describe('class', () => {
             bagel.flavor = "plain";
             print bagel.flavor;
         `);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: 'plain' },
-        ]);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: 'plain' }]);
     });
 
     test('method call', () => {
@@ -476,8 +474,35 @@ describe('class', () => {
             var bagel = Bagel();
             bagel.printFlavor();
         `);
-        expect(logger.logs).toEqual([
-            { type: LogType.LOG, msg: 'plain' },
-        ]);
-    })
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: 'plain' }]);
+    });
+
+    test('this', () => {
+        runner.run(`
+            class Bagel {
+                printFlavor() {
+                    print this.flavor + "!";
+                }
+            }
+            var bagel = Bagel();
+            bagel.flavor = "plain";
+            bagel.printFlavor();
+        `);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: 'plain!' }]);
+    });
+
+    test('this - dereferenced', () => {
+        runner.run(`
+            class Bagel {
+                printFlavor() {
+                    print this.flavor + "!";
+                }
+            }
+            var bagel = Bagel();
+            var b = bagel.printFlavor;
+            bagel.flavor = "plain";
+            b();
+        `);
+        expect(logger.logs).toEqual([{ type: LogType.LOG, msg: 'plain!' }]);
+    });
 });

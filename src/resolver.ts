@@ -1,7 +1,7 @@
 import * as Expr from './ast/expr';
 import * as Stmt from './ast/stmt';
 import Interpreter from './interpreter';
-import Token from './token';
+import Token, { TokenType } from './token';
 import Runner from './runner';
 
 enum VariableState {
@@ -41,7 +41,10 @@ export default class Resolver
         const scope = this.endScope();
 
         for (let variable of scope!.values()) {
-            if (variable.state < VariableState.READ) {
+            if (
+                variable.state < VariableState.READ &&
+                variable.name.type !== TokenType.THIS
+            ) {
                 this.runner.errorToken(variable.name, 'Unused variable.');
             }
         }
@@ -100,11 +103,23 @@ export default class Resolver
     visitClassStmt(stmt: Stmt.Class) {
         this.declare(stmt.name);
 
+        this.beginScope();
+        this.currentScope().set('this', {
+            name: new Token(TokenType.THIS, 'this', undefined, stmt.name.line),
+            state: VariableState.DEFINED,
+        });
+
         for (let method of stmt.methods) {
             this.resolveFunction(method.fn, FunctionType.METHOD);
         }
 
+        this.endScope();
+
         this.define(stmt.name);
+    }
+
+    visitThisExpr(expr: Expr.This) {
+        this.resolveLocal(expr, expr.keyword, true);
     }
 
     visitExpressionStmt(stmt: Stmt.Expression) {

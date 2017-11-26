@@ -12,6 +12,7 @@ export interface ExprVisitor<V> {
     visitCallExpr(expr: Call): V;
     visitGetExpr(expr: Get): V;
     visitSetExpr(expr: Set): V;
+    visitThisExpr(expr: This): V;
     visitLogicalExpr(expr: Logical): V;
     visitVariableExpr(expr: Variable): V;
     visitFunctionExpr(expr: Function): V;
@@ -124,6 +125,17 @@ export class Set extends Expr {
     }
     accept<V>(visitor: ExprVisitor<V>): V {
         return visitor.visitSetExpr(this);
+    }
+}
+
+export class This extends Expr {
+    keyword: Token;
+    constructor(keyword: Token) {
+        super();
+        this.keyword = keyword;
+    }
+    accept<V>(visitor: ExprVisitor<V>): V {
+        return visitor.visitThisExpr(this);
     }
 }
 

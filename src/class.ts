@@ -4,7 +4,7 @@ import { RuntimeException } from './interpreter';
 
 export class LoxClass implements LoxCallable {
     name: string;
-    methods: { [name: string]: LoxFunction }
+    methods: { [name: string]: LoxFunction };
 
     constructor(name: string, methods: { [name: string]: LoxFunction }) {
         this.name = name;
@@ -16,9 +16,9 @@ export class LoxClass implements LoxCallable {
         return instance;
     }
 
-    findMethod(name: Token) {
+    findMethod(instance: LoxInstance, name: Token) {
         if (name.lexeme in this.methods) {
-            return this.methods[name.lexeme];
+            return this.methods[name.lexeme].bind(instance);
         }
     }
 
@@ -44,15 +44,12 @@ export class LoxInstance {
             return this.fields.get(name.lexeme);
         }
 
-        const method = this.klass.findMethod(name);
+        const method = this.klass.findMethod(this, name);
         if (method) {
             return method;
         }
 
-        throw new RuntimeException(
-            name,
-            `Undefined property ${name.lexeme}.`,
-        );
+        throw new RuntimeException(name, `Undefined property ${name.lexeme}.`);
     }
 
     set(name: Token, value: any) {

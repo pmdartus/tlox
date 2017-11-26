@@ -95,14 +95,22 @@ export default class Interpreter
 
     visitClassStmt(stmt: Stmt.Class) {
         this.evironment.define(stmt.name.lexeme, null);
-        
+
         const methods: { [name: string]: LoxFunction } = {};
         for (let method of stmt.methods) {
-            methods[method.name.lexeme] = new LoxFunction(method.name.lexeme, method.fn, this.evironment);
+            methods[method.name.lexeme] = new LoxFunction(
+                method.name.lexeme,
+                method.fn,
+                this.evironment,
+            );
         }
 
         const klass = new LoxClass(stmt.name.lexeme, methods);
         this.evironment.assign(stmt.name, klass);
+    }
+
+    visitThisExpr(expr: Expr.This) {
+        return this.lookupVariable(expr.keyword, expr);
     }
 
     visitExpressionStmt(stmt: Stmt.Expression) {
@@ -222,14 +230,20 @@ export default class Interpreter
             return object.get(expr.name);
         }
 
-        throw new RuntimeException(expr.name, 'Only instances have properties.');
+        throw new RuntimeException(
+            expr.name,
+            'Only instances have properties.',
+        );
     }
 
     visitSetExpr(expr: Expr.Set): any {
         const object = this.evaluate(expr.object);
 
         if (!(object instanceof LoxInstance)) {
-            throw new RuntimeException(expr.name, 'Only instances have fields.');
+            throw new RuntimeException(
+                expr.name,
+                'Only instances have fields.',
+            );
         }
 
         const value = this.evaluate(expr.value);

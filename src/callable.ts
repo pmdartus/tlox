@@ -1,5 +1,6 @@
-import Interpreter, { ReturnException } from './interpreter';
+import { LoxInstance } from './class';
 import Environment from './environment';
+import Interpreter, { ReturnException } from './interpreter';
 
 import * as Stmt from './ast/stmt';
 import * as Expr from './ast/expr';
@@ -47,6 +48,12 @@ export class LoxFunction extends LoxCallable {
 
             throw error;
         }
+    }
+
+    bind(instance: LoxInstance) {
+        const environment = new Environment(this.closure);
+        environment.define('this', instance);
+        return new LoxFunction(this.name, this.declaration, environment);
     }
 
     toString() {

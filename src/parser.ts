@@ -515,6 +515,10 @@ export default class Parser {
             return this.functionBody('function');
         }
 
+        if (this.match(TokenType.THIS)) {
+            return new Expr.This(this.previous());
+        }
+
         throw this.error(this.peek(), 'Expected expression');
     }
 
