@@ -20,6 +20,7 @@ type Scope = Map<string, ScopeVariable>;
 enum FunctionType {
     NONE,
     FUNCTION,
+    METHOD,
 }
 
 export default class Resolver
@@ -98,6 +99,11 @@ export default class Resolver
 
     visitClassStmt(stmt: Stmt.Class) {
         this.declare(stmt.name);
+
+        for (let method of stmt.methods) {
+            this.resolveFunction(method.fn, FunctionType.METHOD);
+        }
+
         this.define(stmt.name);
     }
 

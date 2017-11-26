@@ -95,7 +95,13 @@ export default class Interpreter
 
     visitClassStmt(stmt: Stmt.Class) {
         this.evironment.define(stmt.name.lexeme, null);
-        const klass = new LoxClass(stmt.name.lexeme);
+        
+        const methods: { [name: string]: LoxFunction } = {};
+        for (let method of stmt.methods) {
+            methods[method.name.lexeme] = new LoxFunction(method.name.lexeme, method.fn, this.evironment);
+        }
+
+        const klass = new LoxClass(stmt.name.lexeme, methods);
         this.evironment.assign(stmt.name, klass);
     }
 

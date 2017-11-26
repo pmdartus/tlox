@@ -453,4 +453,31 @@ describe('class', () => {
             { type: LogType.LOG, msg: '<Instance Bagel>' },
         ]);
     });
+
+    test('get/set property', () => {
+        runner.run(`
+            class Bagel {}
+            var bagel = Bagel();
+            bagel.flavor = "plain";
+            print bagel.flavor;
+        `);
+        expect(logger.logs).toEqual([
+            { type: LogType.LOG, msg: 'plain' },
+        ]);
+    });
+
+    test('method call', () => {
+        runner.run(`
+            class Bagel {
+                printFlavor() {
+                    print "plain";
+                }
+            }
+            var bagel = Bagel();
+            bagel.printFlavor();
+        `);
+        expect(logger.logs).toEqual([
+            { type: LogType.LOG, msg: 'plain' },
+        ]);
+    })
 });

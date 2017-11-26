@@ -1,17 +1,25 @@
 import Token from './token';
-import { LoxCallable } from './callable';
+import { LoxCallable, LoxFunction } from './callable';
 import { RuntimeException } from './interpreter';
 
 export class LoxClass implements LoxCallable {
     name: string;
+    methods: { [name: string]: LoxFunction }
 
-    constructor(name: string) {
+    constructor(name: string, methods: { [name: string]: LoxFunction }) {
         this.name = name;
+        this.methods = methods;
     }
 
     call() {
         const instance = new LoxInstance(this);
         return instance;
+    }
+
+    findMethod(name: Token) {
+        if (name.lexeme in this.methods) {
+            return this.methods[name.lexeme];
+        }
     }
 
     get arity() {
@@ -32,14 +40,19 @@ export class LoxInstance {
     }
 
     get(name: Token) {
-        if (!this.fields.has(name.lexeme)) {
-            throw new RuntimeException(
-                name,
-                `Undefined property ${name.lexeme}.`,
-            );
+        if (this.fields.has(name.lexeme)) {
+            return this.fields.get(name.lexeme);
         }
 
-        return this.fields.get(name.lexeme);
+        const method = this.klass.findMethod(name);
+        if (method) {
+            return method;
+        }
+
+        throw new RuntimeException(
+            name,
+            `Undefined property ${name.lexeme}.`,
+        );
     }
 
     set(name: Token, value: any) {
