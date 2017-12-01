@@ -2,7 +2,7 @@
 
 > Interpreter for the [Lox](http://www.craftinginterpreters.com/the-lox-language.html) language written in [Typescript](https://www.typescriptlang.org)
 
-## Setup
+## Get started
 
 ```sh
 yarn install
