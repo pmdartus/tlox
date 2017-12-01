@@ -8,12 +8,14 @@
     "clean": "rimraf dist",
     "build": "tsc",
     "start": "node dist/cli",
+    "serve": "http-server ./playground -c-1",
     "test": "jest",
     "format": "prettier --tab-width 4 --single-quote true --trailing-comma all --write \"{src,script}/**/*.ts\""
   },
   "devDependencies": {
     "@types/jest": "^21.1.5",
     "@types/node": "^8.0.51",
+    "http-server": "^0.10.0",
     "jest": "^21.2.1",
     "prettier": "^1.8.2",
     "rimraf": "^2.6.2",
