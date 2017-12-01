@@ -8,6 +8,7 @@
 
 ```sh
 yarn install
+yarn build
 yarn start      # Run tlox interpreter
 yarn test       # Run test suite
 ```

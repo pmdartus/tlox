@@ -16,28 +16,28 @@ interface LogLine {
 class TestLogger implements Logger {
     logs: LogLine[] = [];
 
-    debug(msg) {
+    debug(msg: string) {
         this.logs.push({
             type: LogType.DEBUG,
             msg,
         });
     }
 
-    log(msg) {
+    log(msg: string) {
         this.logs.push({
             type: LogType.LOG,
             msg,
         });
     }
 
-    warning(msg) {
+    warning(msg: string) {
         this.logs.push({
             type: LogType.WARN,
             msg,
         });
     }
 
-    error(msg) {
+    error(msg: string) {
         this.logs.push({
             type: LogType.ERROR,
             msg,

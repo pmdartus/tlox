@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as readline from 'readline';
 
-import Runner from './runner';
-import { Logger } from './logger';
+import Runner from '../core/runner';
+import { Logger } from '../core/logger';
 
 const cliLogger = {
     debug(msg: string) {

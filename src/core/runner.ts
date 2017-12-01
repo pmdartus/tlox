@@ -1,6 +1,5 @@
 import Parser from './parser';
 import Scanner from './scanner';
-import AstPrinter from './ast-printer';
 import Token, { TokenType } from './token';
 import Interpreter, { RuntimeException } from './interpreter';
 import Resolver from './resolver';
