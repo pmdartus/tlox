@@ -7,6 +7,7 @@
     "generate-ast": "script/generate-ast.js src/core && npm run format",
     "clean": "rimraf dist",
     "build": "tsc",
+    "build:playground": "webpack --config ./script/webpack.config.js",
     "start": "node dist/cli/cli.js",
     "test": "jest",
     "format": "prettier --tab-width 4 --single-quote true --trailing-comma all --write \"{src,script}/**/*.ts\""
@@ -14,11 +15,16 @@
   "devDependencies": {
     "@types/jest": "^21.1.5",
     "@types/node": "^8.0.51",
+    "clean-webpack-plugin": "^0.1.17",
+    "html-webpack-plugin": "^2.30.1",
     "jest": "^21.2.1",
     "prettier": "^1.8.2",
     "rimraf": "^2.6.2",
     "ts-jest": "^21.2.1",
-    "typescript": "^2.6.1"
+    "ts-loader": "^3.2.0",
+    "typescript": "^2.6.1",
+    "webpack": "^3.9.1",
+    "webpack-dev-server": "^2.9.5"
   },
   "jest": {
     "transform": {

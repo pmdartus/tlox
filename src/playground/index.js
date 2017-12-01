@@ -10,7 +10,7 @@ const PRESETS = [{
 
 require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@0.10.1/min/vs' }});
 
-require(['vs/editor/editor.main'], () => {
+window.require(['vs/editor/editor.main'], () => {
     const presetSelect = document.querySelector('#preset-select');
     
     for (let preset of PRESETS) {
