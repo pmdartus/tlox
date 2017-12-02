@@ -1,0 +1,98 @@
+:root {
+    --brand-color: #b8ea86;
+    --bg-color: #f6f4f4;
+}
+
+html, body {
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+}
+
+.float-right {
+    float: right;
+}
+
+.btn {
+    padding: 5px 25px;
+    border: 0 none;
+    border-radius: 4px;
+    line-height: 2;
+    font-weight: 500;
+}
+
+.btn-brand {
+    background: var(--brand-color);
+    color: white;
+}
+
+/* .select {
+    background-color: white;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    padding: 5px 25px;
+} */
+
+.select:after {
+    content: '▼';
+}
+
+.splash {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    background: var(--bg-color);
+    display: flex;
+    justify-content: center;
+}
+
+.ready .splash {
+    display: none;
+}
+
+.splash img {
+    align-self: center;
+}
+
+.page {
+    display: grid;
+    height: 100vh;
+    grid-template-rows: 55px auto;
+    grid-template-columns: 50% auto;
+    grid-template-areas:
+        "header header"
+        "left right";
+}
+
+header {
+    background: var(--bg-color);
+    grid-area: header;
+}
+
+header {
+    background: var(--bg-color);
+    padding: 0 10px;
+    grid-area: header;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#run-button {
+    margin-left: auto;
+}
+
+#left-container {
+    grid-area: left;
+}
+
+#right-container {
+    grid-area: right;
+}

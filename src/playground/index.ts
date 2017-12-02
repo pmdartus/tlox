@@ -1,3 +1,4 @@
+import { presets } from './presets';
 import Runner from '../core/runner';
 
 declare global {
@@ -7,20 +8,12 @@ declare global {
     }
 }
 
-const PRESETS = [{
-    name: 'Hello world',
-    value: 'print "Hello World!";',
-}, {
-    name: 'Function',
-    value: 'fun sayHi(first, last) {\n  print "Hello " + first + " " + last + ", nice to meet you";\n}\n\nsayHi("John", "Doe");',
-}];
-
 const presetSelect = document.querySelector('#preset-select') as HTMLSelectElement;
 const runButton = document.querySelector('#run-button')!;
-const editorContainer = document.querySelector('#editor-container')!;
-const logContainer = document.querySelector('#log-container')!;
+const editorContainer = document.querySelector('#left-container')!;
+const logContainer = document.querySelector('#right-container')!;
 
-for (let preset of PRESETS) {
+for (let preset of presets) {
     const option = document.createElement('option');
     
     option.text = preset.name;
@@ -52,6 +45,11 @@ window.require(['vs/editor/editor.main'], () => {
         },
 
         theme: 'vs-dark',
+    });
+
+    window.addEventListener('resize', () => {
+        editor.layout();
+        log.layout();
     });
     
     presetSelect.addEventListener('change', () => {
@@ -88,4 +86,6 @@ window.require(['vs/editor/editor.main'], () => {
 
         runner.run(value);
     });
+
+    document.body.classList.add('ready');
 });
