@@ -6,7 +6,7 @@
 
 > Interpreter for the [Lox](http://www.craftinginterpreters.com/the-lox-language.html) language written in [Typescript](https://www.typescriptlang.org). Try tlox on the [online playground](http://pmdartus.github.io/tlox).
 
-![logo](/assets/logo.svg?raw=true)
+![tlox logo](/assets/logo.png?raw=true)
 
 ---
 
