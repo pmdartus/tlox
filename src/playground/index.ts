@@ -29,7 +29,7 @@ for (let preset of PRESETS) {
     presetSelect.appendChild(option);
 }
 
-window.require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@0.10.1/min/vs' }});
+window.require.config({ paths: { 'vs': '/monaco-editor' }});
 
 window.require(['vs/editor/editor.main'], () => {
     const editor = window.monaco.editor.create(editorContainer, {
