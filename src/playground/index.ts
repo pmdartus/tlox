@@ -22,7 +22,7 @@ for (let preset of presets) {
     presetSelect.appendChild(option);
 }
 
-window.require.config({ paths: { 'vs': '/monaco-editor' }});
+window.require.config({ paths: { 'vs': 'monaco-editor' }});
 
 window.require(['vs/editor/editor.main'], () => {
     const editor = window.monaco.editor.create(editorContainer, {

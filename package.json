@@ -9,15 +9,17 @@
     "clean": "rimraf dist",
     "test": "jest",
     "build": "tsc",
-    "build:playground": "webpack --config ./script/webpack.config.js",
     "start": "node dist/cli/cli.js",
-    "start:playground": "webpack-dev-server --config ./script/webpack.config.js --open"
+    "build:playground": "webpack --config ./script/webpack.config.js",
+    "start:playground": "webpack-dev-server --config ./script/webpack.config.js --open",
+    "publish:playground": "NODE_ENV=production yarn build:playground && gh-pages -d dist/playground"
   },
   "devDependencies": {
     "@types/jest": "^21.1.5",
     "@types/node": "^8.0.51",
     "clean-webpack-plugin": "^0.1.17",
     "copy-webpack-plugin": "^4.2.3",
+    "gh-pages": "^1.1.0",
     "html-webpack-plugin": "^2.30.1",
     "jest": "^21.2.1",
     "monaco-editor": "^0.10.1",
