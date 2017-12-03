@@ -10,13 +10,14 @@
     "test": "jest",
     "build": "tsc",
     "start": "node dist/cli/cli.js",
-    "build:playground": "webpack --config ./script/webpack.config.js",
-    "start:playground": "webpack-dev-server --config ./script/webpack.config.js --open",
-    "publish:playground": "NODE_ENV=production yarn build:playground && gh-pages -d dist/playground"
+    "build:playground": "webpack --config ./script/webpack.prod.js",
+    "start:playground": "webpack-dev-server --config ./script/webpack.dev.js --open",
+    "publish:playground": "yarn build:playground && gh-pages -d dist/playground"
   },
   "devDependencies": {
     "@types/jest": "^21.1.5",
     "@types/node": "^8.0.51",
+    "babel-minify-webpack-plugin": "^0.2.0",
     "clean-webpack-plugin": "^0.1.17",
     "copy-webpack-plugin": "^4.2.3",
     "gh-pages": "^1.1.0",
@@ -29,7 +30,8 @@
     "ts-loader": "^3.2.0",
     "typescript": "^2.6.1",
     "webpack": "^3.9.1",
-    "webpack-dev-server": "^2.9.5"
+    "webpack-dev-server": "^2.9.5",
+    "webpack-merge": "^4.1.1"
   },
   "jest": {
     "transform": {

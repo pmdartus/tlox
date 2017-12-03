@@ -18,15 +18,6 @@ module.exports = {
         path: path.resolve(DIST_DIR, 'playground'),
     },
 
-    devtool: 'inline-source-map',
-    devServer: {
-        contentBase: path.resolve(DIST_DIR, 'playground'),
-        overlay: {
-            warnings: false,
-            errors: true
-        }
-    },
-
     module: {
         rules: [
             {
