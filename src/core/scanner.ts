@@ -17,7 +17,7 @@ function isAlphaNumeric(c: string) {
     return isAlpha(c) || isDigit(c);
 }
 
-const KEYWORDS: Map<string, TokenType> = new Map([
+export const KEYWORDS: Map<string, TokenType> = new Map([
     ['and', TokenType.AND],
     ['class', TokenType.CLASS],
     ['else', TokenType.ELSE],

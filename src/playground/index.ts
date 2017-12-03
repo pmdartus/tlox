@@ -1,5 +1,5 @@
 import { presets } from './presets';
-import * as loxLanguage from './lox-language';
+import * as loxLanguage from './lox-language/main';
 
 import Runner from '../core/runner';
 
