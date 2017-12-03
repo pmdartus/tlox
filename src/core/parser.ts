@@ -7,17 +7,18 @@ import { Class } from './ast/stmt';
 
 class ParserError extends Error {}
 
-export default class Parser {
-    runner: Runner;
+interface ParserConfig {
+    error(token: Token, msg: string): void;
+}
 
-    tokens: Token[];
+export default class Parser {
     current = 0;
     loopDepth = 0;
 
-    constructor(tokens: Token[], runner: Runner) {
-        this.tokens = tokens;
-        this.runner = runner;
-    }
+    constructor(
+        public tokens: Token[], 
+        public config: ParserConfig
+    ) {}
 
     parse(): Stmt.Stmt[] {
         const statements = [];
@@ -589,7 +590,7 @@ export default class Parser {
     }
 
     private error(token: Token, message: string) {
-        this.runner.errorToken(token, message);
+        this.config.error(token, message);
         return new ParserError();
     }
 }

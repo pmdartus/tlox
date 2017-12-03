@@ -17,10 +17,14 @@ export default class Runner {
     }
 
     run(source: string) {
-        const scanner = new Scanner(source, this);
+        const scanner = new Scanner(source, {
+            error: (line, msg) => this.error(line, msg)
+        });
         const tokens = scanner.scanTokens();
 
-        const parser = new Parser(tokens, this);
+        const parser = new Parser(tokens, {
+            error: (token, msg) => this.errorToken(token, msg)
+        });
         const statements = parser.parse();
 
         if (this.hadError) {

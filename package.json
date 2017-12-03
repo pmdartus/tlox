@@ -34,6 +34,9 @@
     "webpack-merge": "^4.1.1"
   },
   "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
     "transform": {
       "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },

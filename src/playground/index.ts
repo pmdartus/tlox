@@ -27,12 +27,14 @@ for (let preset of presets) {
 window.require.config({ paths: { 'vs': 'monaco-editor' }});
 
 window.require(['vs/editor/editor.main'], () => {
-    loxLanguage.register(window.monaco);
+    loxLanguage.registerLanguage(window.monaco);
 
     const editor = window.monaco.editor.create(editorContainer, {
         value: presetSelect.value,
         language: loxLanguage.id,
     });
+
+    loxLanguage.registerEditor(window.monaco, editor);
 
     const log = window.monaco.editor.create(logContainer, {
         value: '',

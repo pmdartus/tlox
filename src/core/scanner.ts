@@ -1,6 +1,10 @@
 import Runner from './runner';
 import Token, { TokenType } from './token';
 
+interface ScannerConfig {
+    error(line: number, msg: string): void
+}
+
 function isDigit(c: string) {
     return c >= '0' && c <= '9';
 }
@@ -33,19 +37,17 @@ const KEYWORDS: Map<string, TokenType> = new Map([
     ['fun', TokenType.FUN],
 ]);
 
-export default class Scanner {
-    source: string;
-    runner: Runner;
 
+export default class Scanner {
     tokens: Token[] = [];
     start = 0;
     current = 0;
     line = 1;
 
-    constructor(source: string, runner: Runner) {
-        this.source = source;
-        this.runner = runner;
-    }
+    constructor(
+        public source: string, 
+        public config: ScannerConfig
+    ) {}
 
     scanTokens() {
         while (!this.isAtEnd()) {
@@ -215,7 +217,7 @@ export default class Scanner {
                 } else if (isAlpha(c)) {
                     this.identifier();
                 } else {
-                    this.runner.error(this.line, `Unexpected character ${c}`);
+                    this.config.error(this.line, `Unexpected character ${c}`);
                 }
         }
     }
@@ -230,7 +232,7 @@ export default class Scanner {
         }
 
         if (this.isAtEnd()) {
-            this.runner.error(this.line, 'Unterminated string.');
+            this.config.error(this.line, 'Unterminated string.');
             return;
         }
 
