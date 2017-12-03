@@ -2,13 +2,17 @@ export default class Token {
     type: TokenType;
     lexeme: string;
     literal: any;
-    line: number;
+    start: number;
 
-    constructor(type: TokenType, lexeme: string, literal: any, line: number) {
+    constructor(type: TokenType, lexeme: string, literal: any, start: number) {
         this.type = type;
         this.lexeme = lexeme;
         this.literal = literal;
-        this.line = line;
+        this.start = start;
+    }
+
+    get end() {
+        return this.start + this.lexeme.length;
     }
 
     toString() {
@@ -20,7 +24,7 @@ export default class Token {
             a.type === b.type &&
             a.lexeme === b.lexeme &&
             a.literal === b.literal &&
-            a.line === b.line
+            a.start === b.start
         );
     }
 }

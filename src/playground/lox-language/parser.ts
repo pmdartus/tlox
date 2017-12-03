@@ -1,3 +1,5 @@
+import { getLocator } from 'locate-character';
+
 import Scanner from '../../core/scanner';
 import Parser from '../../core/parser';
 
@@ -23,17 +25,24 @@ interface EditorMaker {
     endColumn: number;
 }
 
+const LOCATION_CONFIG = {
+    offsetLine: 1,
+    offsetColumn: 1
+};
+
 export function parse(src: string) {
+    const locate = getLocator(src, LOCATION_CONFIG);
     const errors: EditorMaker[] = [];
     
     const scanner = new Scanner(src, {
-        error(line, message) {
+        error(location, message) {
+            const { line, column } = locate(location as any);
             errors.push({
                 message,
                 startLineNumber: line,
                 endLineNumber: line,
-                startColumn: 0,
-                endColumn: 0,
+                startColumn: column,
+                endColumn: column,
                 severity: Severity.Error,
             })
         }
@@ -46,12 +55,15 @@ export function parse(src: string) {
 
     const parser = new Parser(tokens, {
         error(token, message) {
+            const start = locate(token.start as any);
+            const end = locate(token.end as any);
+
             errors.push({
                 message,
-                startLineNumber: token.line,
-                endLineNumber: token.line,
-                startColumn: 0,
-                endColumn: 0,
+                startLineNumber: start.line,
+                endLineNumber: end.line,
+                startColumn: start.column,
+                endColumn: end.column,
                 severity: Severity.Error,
             })
         }

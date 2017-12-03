@@ -2781,6 +2781,10 @@ loader-utils@^1.0.2, loader-utils@^1.1.0:
     emojis-list "^2.0.0"
     json5 "^0.5.0"
 
+locate-character@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/locate-character/-/locate-character-2.0.3.tgz#85a5aedae26b3536c3e97016af164cdaa3ae5ae1"
+
 locate-path@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/locate-path/-/locate-path-2.0.0.tgz#2b568b265eec944c6d9c0de9c3dbbbca0354cd8e"

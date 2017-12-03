@@ -2,7 +2,7 @@ import Runner from './runner';
 import Token, { TokenType } from './token';
 
 interface ScannerConfig {
-    error(line: number, msg: string): void
+    error(location: number, msg: string): void
 }
 
 function isDigit(c: string) {
@@ -42,7 +42,6 @@ export default class Scanner {
     tokens: Token[] = [];
     start = 0;
     current = 0;
-    line = 1;
 
     constructor(
         public source: string, 
@@ -55,7 +54,7 @@ export default class Scanner {
             this.scanToken();
         }
 
-        this.tokens.push(new Token(TokenType.EOF, '', null, this.line));
+        this.tokens.push(new Token(TokenType.EOF, '', null, this.start));
         return this.tokens;
     }
 
@@ -90,7 +89,7 @@ export default class Scanner {
 
     private addToken(type: TokenType, literal: any = null) {
         const lexeme = this.source.slice(this.start, this.current);
-        this.tokens.push(new Token(type, lexeme, literal, this.line));
+        this.tokens.push(new Token(type, lexeme, literal, this.start));
     }
 
     private scanToken() {
@@ -179,10 +178,6 @@ export default class Scanner {
                         this.peekNext() !== '/' &&
                         !this.isAtEnd()
                     ) {
-                        if (this.peek() === '\n') {
-                            this.line++;
-                        }
-
                         this.advance();
                     }
 
@@ -200,11 +195,8 @@ export default class Scanner {
             case ' ':
             case '\r':
             case '\t':
-                // Ignore whitespaces
-                break;
-
             case '\n':
-                this.line++;
+                // Ignore whitespaces
                 break;
 
             case '"':
@@ -217,22 +209,18 @@ export default class Scanner {
                 } else if (isAlpha(c)) {
                     this.identifier();
                 } else {
-                    this.config.error(this.line, `Unexpected character ${c}`);
+                    this.config.error(this.current, `Unexpected character ${c}`);
                 }
         }
     }
 
     private string() {
         while (this.peek() !== '"' && !this.isAtEnd()) {
-            if (this.peek() == '\n') {
-                this.line++;
-            }
-
             this.advance();
         }
 
         if (this.isAtEnd()) {
-            this.config.error(this.line, 'Unterminated string.');
+            this.config.error(this.current, 'Unterminated string.');
             return;
         }
 

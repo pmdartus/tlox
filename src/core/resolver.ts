@@ -117,7 +117,7 @@ export default class Resolver
         for (let method of stmt.methods) {
             this.beginScope();
             this.currentScope().set('this', {
-                name: new Token(TokenType.THIS, 'this', undefined, stmt.name.line),
+                name: new Token(TokenType.THIS, 'this', undefined, stmt.name.start),
                 state: VariableState.DEFINED,
             });
 
@@ -134,7 +134,7 @@ export default class Resolver
         for (let method of stmt.classMethods) {
             this.beginScope();
             this.currentScope().set('this', {
-                name: new Token(TokenType.THIS, 'this', undefined, stmt.name.line),
+                name: new Token(TokenType.THIS, 'this', undefined, stmt.name.start),
                 state: VariableState.DEFINED,
             });
 

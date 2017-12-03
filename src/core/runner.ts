@@ -1,3 +1,5 @@
+import { locate } from 'locate-character';
+
 import Parser from './parser';
 import Scanner from './scanner';
 import Token, { TokenType } from './token';
@@ -5,7 +7,13 @@ import Interpreter, { RuntimeException } from './interpreter';
 import Resolver from './resolver';
 import { Logger } from './logger';
 
+const LOCATION_CONFIG = {
+    offsetLine: 1
+};
+
 export default class Runner {
+    source: string;
+
     hadError = false;
     hadRuntimeError = false;
     interpreter = new Interpreter(this);
@@ -17,6 +25,8 @@ export default class Runner {
     }
 
     run(source: string) {
+        this.source = source;
+
         const scanner = new Scanner(source, {
             error: (line, msg) => this.error(line, msg)
         });
@@ -41,25 +51,28 @@ export default class Runner {
         this.interpreter.interpret(statements);
     }
 
-    error(line: number, message: string) {
-        this.reportError(line, '', message);
+    error(location: number, message: string) {
+        const { line, column } = locate(this.source, location, LOCATION_CONFIG);
+        this.reportError(line, column, '', message);
     }
 
     errorToken(token: Token, message: string) {
+        const { line, column } = locate(this.source, token.start, LOCATION_CONFIG);
         if (token.type === TokenType.EOF) {
-            this.reportError(token.line, 'at end', message);
+            this.reportError(line, column, 'at end', message);
         } else {
-            this.reportError(token.line, `at "${token.lexeme}"`, message);
+            this.reportError(line, column, `at "${token.lexeme}"`, message);
         }
     }
 
     runtimeError(error: RuntimeException) {
-        this.logger.error(`[line ${error.token.line}] ${error.message}`);
+        const { line, column } = locate(this.source, error.token.start, LOCATION_CONFIG);
+        this.logger.error(`[${line}:${column}] ${error.message}`);
         this.hadRuntimeError = true;
     }
 
-    reportError(line: number, where: string, message: string) {
-        this.logger.error(`[line ${line}] Error ${where}: ${message}`);
+    reportError(line: number, column: number, where: string, message: string) {
+        this.logger.error(`[${line}:${column}] Error ${where}: ${message}`);
         this.hadError = true;
     }
 }

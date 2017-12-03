@@ -175,7 +175,7 @@ describe('flow control', () => {
             {
                 type: LogType.ERROR,
                 msg:
-                    '[line 3] Error at "break": Must be inside a loop to use "break".',
+                    '[3:16] Error at "break": Must be inside a loop to use "break".',
             },
         ]);
     });
@@ -227,7 +227,7 @@ describe('function', () => {
         expect(logger.logs).toEqual([
             {
                 type: LogType.ERROR,
-                msg: '[line 5] Expected 2 arguments but got 1.',
+                msg: '[5:27] Expected 2 arguments but got 1.',
             },
         ]);
     });
@@ -240,7 +240,7 @@ describe('function', () => {
             {
                 type: LogType.ERROR,
                 msg:
-                    '[line 2] Error at "i": Cannot have more than 8 parameters.',
+                    '[2:49] Error at "i": Cannot have more than 8 parameters.',
             },
         ]);
     });
@@ -332,7 +332,7 @@ describe('scope', () => {
             {
                 type: LogType.ERROR,
                 msg:
-                    '[line 2] Error at "return": Cannot return from top level.',
+                    '[2:12] Error at "return": Cannot return from top level.',
             },
         ]);
     });
@@ -353,7 +353,7 @@ describe('scope', () => {
             {
                 type: LogType.ERROR,
                 msg:
-                    '[line 6] Error at "b": Duplicate variable declaration in the scope.',
+                    '[6:20] Error at "b": Duplicate variable declaration in the scope.',
             },
         ]);
     });
@@ -369,7 +369,7 @@ describe('scope', () => {
             {
                 type: LogType.ERROR,
                 msg:
-                    '[line 3] Error at "a": Cannot read variable before own init.',
+                    '[3:24] Error at "a": Cannot read variable before own init.',
             },
         ]);
     });
@@ -383,7 +383,7 @@ describe('scope', () => {
         expect(logger.logs).toEqual([
             {
                 type: LogType.ERROR,
-                msg: '[line 3] Error at "a": Unused variable.',
+                msg: '[3:20] Error at "a": Unused variable.',
             },
         ]);
     });
@@ -414,7 +414,7 @@ describe('environment', () => {
         expect(logger.logs).toEqual([
             {
                 type: LogType.ERROR,
-                msg: '[line 2] Undefined variable for "a".',
+                msg: '[2:18] Undefined variable for "a".',
             },
         ]);
     });
@@ -426,7 +426,7 @@ describe('environment', () => {
         expect(logger.logs).toEqual([
             {
                 type: LogType.ERROR,
-                msg: '[line 2] Undefined variable for "a".',
+                msg: '[2:12] Undefined variable for "a".',
             },
         ]);
     });
@@ -517,7 +517,7 @@ describe('class', () => {
             {
                 type: LogType.ERROR,
                 msg:
-                    '[line 3] Error at "this": Can only be used in class methods.',
+                    '[3:23] Error at "this": Can only be used in class methods.',
             },
         ]);
     });
@@ -553,7 +553,7 @@ describe('class', () => {
             {
                 type: LogType.ERROR,
                 msg:
-                    '[line 4] Error at "return": Cannot return a value from the intializer.',
+                    '[4:20] Error at "return": Cannot return a value from the intializer.',
             },
         ]);
     });
