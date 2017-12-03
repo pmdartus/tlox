@@ -5,6 +5,56 @@ interface Preset {
 
 export const presets: Preset[] = [
     {
+        name: 'Function',
+        value: (
+`// I am a comment
+/*
+ awd awd awd 
+ awd awd aw
+
+ aw d
+ aw awd a
+*/
+
+var a = "awdawd";
+
+fun fibonacci(n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 2) + fibonacci(n - 1);
+}
+
+for (var i = 0; i < 10.0; i = i + 1) {
+    print fibonacci(i);
+}
+
+fun makeClosure() {
+    var i = 0;
+    fun count() {
+        i = i + 1;
+        print i;
+    }
+
+  return count;
+}
+
+var counter = makeClosure();
+for (var i = 0; i < 10; i = i + 1) {
+    print counter();
+}
+
+fun times(n, fn) {
+    for (var i = 0; i < n; i = i + 1) {
+        fn(n);
+    }
+}
+
+times(fn (n) {
+    print n;
+})
+`
+        )
+    },
+    {
         name: 'Hello world!',
         value: `print "Hello World!";`,
     },
@@ -35,45 +85,6 @@ while (a < 10) {
 for (var a = 1; a < 10; a = a + 1) {
     print a;
 }
-`
-        )
-    },
-    {
-        name: 'Function',
-        value: (
-`fun fibonacci(n) {
-    if (n <= 1) return n;
-    return fibonacci(n - 2) + fibonacci(n - 1);
-}
-
-for (var i = 0; i < 10; i = i + 1) {
-    print fibonacci(i);
-}
-
-fun makeClosure() {
-    var i = 0;
-    fun count() {
-        i = i + 1;
-        print i;
-    }
-
-  return count;
-}
-
-var counter = makeClosure();
-for (var i = 0; i < 10; i = i + 1) {
-    print counter();
-}
-
-fun times(n, fn) {
-    for (var i = 0; i < n; i = i + 1) {
-        fn(n);
-    }
-}
-
-times(fn (n) {
-    print n;
-})
 `
         )
     },

@@ -1,4 +1,6 @@
 import { presets } from './presets';
+import * as loxLanguage from './lox-language';
+
 import Runner from '../core/runner';
 
 declare global {
@@ -25,9 +27,11 @@ for (let preset of presets) {
 window.require.config({ paths: { 'vs': 'monaco-editor' }});
 
 window.require(['vs/editor/editor.main'], () => {
+    loxLanguage.register(window.monaco);
+
     const editor = window.monaco.editor.create(editorContainer, {
         value: presetSelect.value,
-        language: 'lox',
+        language: loxLanguage.id,
     });
 
     const log = window.monaco.editor.create(logContainer, {
