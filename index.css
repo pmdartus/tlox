@@ -37,9 +37,9 @@ html, body {
     padding: 5px 25px;
 } */
 
-.select:after {
+/* .select:after {
     content: '▼';
-}
+} */
 
 .splash {
     position: absolute;
@@ -85,8 +85,9 @@ header {
     align-items: center;
 }
 
-#run-button {
+#save-button {
     margin-left: auto;
+    margin-right: 10px;
 }
 
 #left-container {
