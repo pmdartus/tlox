@@ -4,6 +4,8 @@
 
 ---
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/pmdartus/tlox.svg)](https://greenkeeper.io/)
+
 [![CircleCI](https://circleci.com/gh/pmdartus/tlox.svg?style=svg)](https://circleci.com/gh/pmdartus/tlox)
 
 
